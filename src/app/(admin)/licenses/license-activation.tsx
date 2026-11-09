@@ -1,19 +1,22 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import type { ReactNode } from "react";
+import { CheckCircle2 } from "@/components/icons";
+import { useLanguage } from "@/components/language-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { LicenseStatus } from "@/lib/licenses/types";
 import type { ActivatableLicensePlan, LicenseAction } from "./types";
 import { formatLicensePlan, loadLicenseStatus, runLicenseAction } from "./utils";
 
-export function LicenseActivation() {
+// children is the pricing grid: the activated card goes above it, the key form below.
+export function LicenseActivation({ children }: { children?: ReactNode }) {
+	const { t } = useLanguage();
 	const [license, setLicense] = useState<LicenseStatus | null>(null);
 	const [licenseKey, setLicenseKey] = useState("");
 	const [selectedPlan, setSelectedPlan] = useState<ActivatableLicensePlan>("pro");
@@ -28,7 +31,7 @@ export function LicenseActivation() {
 				if (!cancelled) setLicense(nextLicense);
 			})
 			.catch((error) => {
-				if (!cancelled) setStatus(error instanceof Error ? error.message : "Unable to load license status");
+				if (!cancelled) setStatus(error instanceof Error ? error.message : t("licenses.loadFailed"));
 			})
 			.finally(() => {
 				if (!cancelled) setLoading(false);
@@ -40,10 +43,10 @@ export function LicenseActivation() {
 
 	async function submit(nextAction: LicenseAction) {
 		if (nextAction !== "deactivate" && !licenseKey.trim()) {
-			setStatus("Enter your license key");
+			setStatus(t("licenses.enterKey"));
 			return;
 		}
-		if (nextAction === "deactivate" && !window.confirm("Deactivate this license on this installation?")) return;
+		if (nextAction === "deactivate" && !window.confirm(t("licenses.deactivateConfirm"))) return;
 
 		setAction(nextAction);
 		setStatus(null);
@@ -51,9 +54,9 @@ export function LicenseActivation() {
 			const nextLicense = await runLicenseAction(nextAction, licenseKey, nextAction === "activate" ? selectedPlan : undefined);
 			setLicense(nextLicense);
 			setLicenseKey("");
-			setStatus(nextAction === "deactivate" ? "License deactivated" : nextAction === "validate" ? "License validated" : "License activated");
+			setStatus(nextAction === "deactivate" ? t("licenses.deactivated") : nextAction === "validate" ? t("licenses.validated") : t("licenses.activated"));
 		} catch (error) {
-			setStatus(error instanceof Error ? error.message : "License request failed");
+			setStatus(error instanceof Error ? error.message : t("licenses.requestFailed"));
 			try {
 				setLicense(await loadLicenseStatus());
 			} catch {
@@ -64,97 +67,114 @@ export function LicenseActivation() {
 		}
 	}
 
-	if (loading) return <Skeleton className="h-64 w-full rounded-3xl" />;
+	if (loading) return <>{children}<Skeleton className="h-64 w-full rounded-3xl" /></>;
 
 	const hasActivation = !!license?.activatedAt && license.state !== "deactivated";
 
 	if (license?.active) {
 		return (
+			<>
 			<Card className="rounded-3xl border-0 bg-white px-6">
 				<CardContent className="flex items-start gap-4 py-8">
 					<span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-green-100 text-green-700">
 						<CheckCircle2 className="h-6 w-6" />
 					</span>
 					<div className="min-w-0 flex-1">
-						<CardTitle>License activated</CardTitle>
+						<CardTitle>{t("licenses.activated")}</CardTitle>
 						<p className="mt-2 text-sm leading-6 text-neutral-600">
-							Your {formatLicensePlan(license.plan)} license is active. Licensed features are ready to use.
+							{t("licenses.activatedBody", { plan: formatLicensePlan(license.plan, t) })}
 						</p>
+						<p className="mt-1 text-sm text-neutral-500">{license.seatLimit === null ? t("licenses.seatsUnlimited") : t("licenses.seats", { limit: license.seatLimit })}</p>
 						<Button type="button" variant="outline" className="mt-5" onClick={() => void submit("deactivate")} disabled={action !== null}>
-							{action === "deactivate" ? "Deactivating..." : "Deactivate license"}
+							{action === "deactivate" ? t("licenses.deactivating") : t("licenses.deactivate")}
 						</Button>
-						{status && <p className="mt-3 text-sm text-neutral-500">{status}</p>}
+						{status && <p role="status" className="mt-3 text-sm text-neutral-500">{status}</p>}
 					</div>
 				</CardContent>
 			</Card>
+			{children}
+			</>
 		);
 	}
 
 	return (
+		<>
+		{children}
 		<Card className="rounded-3xl border-0 bg-white px-6">
-			<CardHeader>
-				<div className="flex items-center justify-between gap-4">
-					<div className="space-y-1.5">
-						<CardTitle>License activation</CardTitle>
-						<CardDescription>Activate the key delivered after your Paymug purchase.</CardDescription>
-					</div>
-					<Badge variant={license?.active ? "default" : "outline"}>
-						{formatLicensePlan(license?.plan ?? "community")}
-					</Badge>
-				</div>
-			</CardHeader>
 			<CardContent className="space-y-5 pb-6">
 				{hasActivation && license && (
 					<p className="rounded-2xl bg-amber-50 px-4 py-3 text-sm text-amber-800">
-						This license is currently {license.state}. Enter its key to validate or deactivate it.
+						{t("licenses.currentState", { state: license.state })}
 					</p>
 				)}
 				{!hasActivation && (
-					<div className="space-y-2">
-						<Label htmlFor="licensePlan">Product</Label>
-						<Select
-							id="licensePlan"
-							value={selectedPlan}
-							onChange={(event) => setSelectedPlan(event.target.value as ActivatableLicensePlan)}
-							disabled={action !== null}
-							className="flex h-10 w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm outline-none focus-visible:ring-2 focus-visible:ring-neutral-400 disabled:cursor-not-allowed disabled:opacity-50"
-						>
-							<option value="pro">Pro</option>
-							<option value="team">Team</option>
-						</Select>
+					<div className="space-y-4 pt-6">
+						<Label className="mb-4">{t("licenses.haveLicense")}</Label>
+						<div className="grid grid-cols-1 gap-3 sm:grid-cols-2 mt-2" role="radiogroup" aria-label={t("licenses.product")}>
+							<button
+								type="button"
+								role="radio"
+								aria-checked={selectedPlan === "pro"}
+								onClick={() => setSelectedPlan("pro")}
+								disabled={action !== null}
+								className={`rounded-2xl border px-4 py-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ${
+									selectedPlan === "pro"
+										? "border-blue-600 bg-neutral-50 ring-1 ring-blue-700"
+										: "border-neutral-200 bg-white hover:border-neutral-400"
+								}`}
+							>
+								<span className="block text-xl font-semibold">Pro</span>
+								<span className="mt-1 block text-xs text-neutral-500">{t("licenses.proTag")}</span>
+							</button>
+							<button
+								type="button"
+								role="radio"
+								aria-checked={selectedPlan === "team"}
+								onClick={() => setSelectedPlan("team")}
+								disabled={action !== null}
+								className={`rounded-2xl border px-4 py-4 text-left transition-colors disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer ${
+									selectedPlan === "team"
+										? "border-blue-600 bg-neutral-50 ring-1 ring-blue-700"
+										: "border-neutral-200 bg-white hover:border-neutral-400"
+								}`}
+							>
+								<span className="block text-xl font-semibold text-neutral-900">Team</span>
+								<span className="mt-1 block text-xs text-neutral-500">{t("licenses.teamTag")}</span>
+							</button>
+						</div>
 					</div>
 				)}
 				<div className="space-y-2">
-					<Label htmlFor="licenseKey">License key</Label>
+					<Label htmlFor="licenseKey">{t("licenses.licenseKey")}</Label>
 					<Input
 						id="licenseKey"
 						type="password"
 						autoComplete="off"
 						value={licenseKey}
 						onChange={(event) => setLicenseKey(event.target.value)}
-						placeholder="Enter your Paymug license key"
+						placeholder={t("licenses.keyPlaceholder")}
 						disabled={action !== null}
 					/>
-					<p className="text-xs text-neutral-500">The key is sent directly to Paymug and is not stored. Mailflare keeps only a one-way hash. Activation binds the key to this installation and URL.</p>
 				</div>
 				<div className="flex flex-wrap items-center gap-3">
 					{hasActivation ? (
 						<>
 							<Button type="button" onClick={() => void submit("validate")} disabled={action !== null}>
-								{action === "validate" ? "Validating..." : "Validate license"}
+								{action === "validate" ? t("licenses.validating") : t("licenses.validate")}
 							</Button>
 							<Button type="button" variant="outline" onClick={() => void submit("deactivate")} disabled={action !== null}>
-								{action === "deactivate" ? "Deactivating..." : "Deactivate"}
+								{action === "deactivate" ? t("licenses.deactivating") : t("licenses.deactivateShort")}
 							</Button>
 						</>
 					) : (
 						<Button type="button" onClick={() => void submit("activate")} disabled={action !== null}>
-							{action === "activate" ? "Activating..." : "Activate license"}
+							{action === "activate" ? t("licenses.activating") : t("licenses.activate")}
 						</Button>
 					)}
-					{status && <p className="text-sm text-neutral-500">{status}</p>}
+					{status && <p role="status" className="text-sm text-neutral-500">{status}</p>}
 				</div>
 			</CardContent>
 		</Card>
+		</>
 	);
 }

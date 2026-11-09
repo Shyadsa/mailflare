@@ -1,23 +1,32 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { TooltipPosition, TooltipProps } from "./tooltip-types";
 import { getTooltipPosition } from "./tooltip-utils";
 
-export function Tooltip({ label, children, className }: TooltipProps) {
+export function Tooltip({ label, children, className, placement = "auto" }: TooltipProps) {
 	const [open, setOpen] = useState(false);
 	const [position, setPosition] = useState<TooltipPosition | null>(null);
 	const triggerRef = useRef<HTMLSpanElement>(null);
 	const tooltipRef = useRef<HTMLSpanElement>(null);
+
+	useEffect(() => {
+		if (!open) return;
+		function onKeyDown(event: KeyboardEvent) {
+			if (event.key === "Escape") setOpen(false);
+		}
+		document.addEventListener("keydown", onKeyDown);
+		return () => document.removeEventListener("keydown", onKeyDown);
+	}, [open]);
 
 	useLayoutEffect(() => {
 		if (!open) return;
 
 		function updatePosition() {
 			if (!triggerRef.current || !tooltipRef.current) return;
-			setPosition(getTooltipPosition(triggerRef.current, tooltipRef.current));
+			setPosition(getTooltipPosition(triggerRef.current, tooltipRef.current, placement));
 		}
 
 		updatePosition();
@@ -28,7 +37,9 @@ export function Tooltip({ label, children, className }: TooltipProps) {
 			window.removeEventListener("resize", updatePosition);
 			window.removeEventListener("scroll", updatePosition, true);
 		};
-	}, [label, open]);
+	}, [label, open, placement]);
+
+	if (!label) return children
 
 	return (
 		<span
@@ -38,10 +49,7 @@ export function Tooltip({ label, children, className }: TooltipProps) {
 			onBlurCapture={() => setOpen(false)}
 			onMouseEnter={() => setOpen(true)}
 			onMouseLeave={() => setOpen(false)}
-			onClickCapture={() => {
-				setOpen(false);
-				if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
-			}}
+			onClickCapture={() => setOpen(false)}
 		>
 			{children}
 			{open && typeof document !== "undefined" &&

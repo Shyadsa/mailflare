@@ -3,6 +3,7 @@ import { getDb } from "@/db";
 import type { AppDatabase } from "@/db";
 import { webhookDeliveries, webhooks } from "@/db/schema";
 import { newId } from "@/lib/ids";
+import { assertResolvesPublic, isPublicHttpsUrl, PUBLIC_HTTPS_URL_MESSAGE } from "@/lib/security/public-url";
 
 export type WebhookEventType = "message.inbound" | "message.outbound" | "message.failed";
 
@@ -53,9 +54,13 @@ export async function dispatchWebhooks(
 		if (!hook.enabled) continue;
 		if (!parseWebhookEvents(hook.events).includes(eventType)) continue;
 
-		const body = JSON.stringify({ type: eventType, data: payload });
-		const delivery = await createDelivery(db, hook.id, eventType, body);
-		await attemptDelivery(env, db, hook, delivery);
+		try {
+			const body = JSON.stringify({ type: eventType, data: payload });
+			const delivery = await createDelivery(db, hook.id, eventType, body);
+			await attemptDelivery(env, db, hook, delivery);
+		} catch (error) {
+			console.error(`Webhook dispatch failed for ${hook.id}`, error);
+		}
 	}
 }
 
@@ -94,6 +99,9 @@ async function attemptDelivery(
 	let error: string | null = null;
 
 	try {
+		// Hooks saved before URL validation existed must not become an SSRF path.
+		if (!isPublicHttpsUrl(hook.url)) throw new Error(PUBLIC_HTTPS_URL_MESSAGE);
+		await assertResolvesPublic(new URL(hook.url).hostname);
 		const signature = await signPayload(hook.secret, delivery.payload);
 		const res = await fetch(hook.url, {
 			method: "POST",

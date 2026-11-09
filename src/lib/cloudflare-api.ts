@@ -1,6 +1,7 @@
 import type {
 	CfDnsRecord,
 	CfEmailRoutingRule,
+	CfEmailRoutingRuleChange,
 	CfResponse,
 	CfSendingSubdomain,
 } from "@/lib/cloudflare-api.types";
@@ -11,6 +12,7 @@ import {
 	getCloudflareAuthHint,
 	getEmailWorkerName,
 } from "@/lib/cloudflare-api-utils";
+import { CloudflareApiError } from "@/lib/cloudflare-api-error";
 import { getZoneLookupCandidates } from "@/lib/domains/utils";
 export type { CfDnsRecord } from "@/lib/cloudflare-api.types";
 
@@ -31,11 +33,21 @@ export async function cfRequest<T>(
 	const json = (await res.json()) as CfResponse<T>;
 
 	if (!json.success) {
-		throw new Error(
-			`${formatCloudflareError(path, res.status, res.statusText, json.errors ?? [])}${getCloudflareAuthHint(json.errors ?? [])}`,
+		throw new CloudflareApiError(
+			`${formatCloudflareError(path, res.status, res.statusText, json.errors ?? [])}${getCloudflareAuthHint(json.errors ?? [], path)}`,
+			res.status,
+			path,
+			json.errors ?? [],
 		);
 	}
 	return json.result;
+}
+
+export async function getZone(
+	env: CloudflareEnv,
+	zoneId: string,
+): Promise<{ id: string; name: string }> {
+	return cfRequest<{ id: string; name: string }>(env, `/zones/${zoneId}`);
 }
 
 export async function findZoneByHostname(
@@ -207,7 +219,9 @@ export async function ensureEmailRoutingRuleToWorker(
 	env: CloudflareEnv,
 	zoneId: string,
 	address: string,
+	changes?: CfEmailRoutingRuleChange[],
 ) {
+	if (zoneId === "manual") return;
 	const normalized = address.toLowerCase();
 	const workerName = getEmailWorkerName();
 	const rules = await listEmailRoutingRules(env, zoneId);
@@ -215,6 +229,7 @@ export async function ensureEmailRoutingRuleToWorker(
 
 	if (existing?.enabled) return existing;
 	if (existing?.id) {
+		changes?.push({ zoneId, ruleId: existing.id, previous: existing });
 		return cfRequest<CfEmailRoutingRule>(
 			env,
 			`/zones/${zoneId}/email/routing/rules/${existing.id}`,
@@ -231,7 +246,26 @@ export async function ensureEmailRoutingRuleToWorker(
 		);
 	}
 
-	return createEmailRoutingRuleToWorker(env, zoneId, normalized);
+	const created = await createEmailRoutingRuleToWorker(env, zoneId, normalized);
+	if (created.id) changes?.push({ zoneId, ruleId: created.id });
+	return created;
+}
+
+/** Undo only the rules created or re-enabled by a failed provisioning attempt. */
+export async function rollbackEmailRoutingRuleChanges(env: CloudflareEnv, changes: CfEmailRoutingRuleChange[]) {
+	const results = await Promise.allSettled(changes.map(({ zoneId, ruleId, previous }) =>
+		previous
+			? cfRequest(env, `/zones/${zoneId}/email/routing/rules/${ruleId}`, {
+				method: "PUT",
+				body: JSON.stringify({
+					actions: previous.actions, enabled: previous.enabled, matchers: previous.matchers,
+					name: previous.name, priority: previous.priority,
+				}),
+			})
+			: deleteEmailRoutingRule(env, zoneId, ruleId),
+	));
+	const failures = results.filter((result) => result.status === "rejected");
+	if (failures.length) throw new AggregateError(failures.map((result) => result.reason), "Unable to restore routing rules");
 }
 
 export async function deleteEmailRoutingRuleForAddress(
@@ -239,6 +273,7 @@ export async function deleteEmailRoutingRuleForAddress(
 	zoneId: string,
 	address: string,
 ): Promise<boolean> {
+	if (zoneId === "manual") return false;
 	const normalized = address.toLowerCase();
 	const workerName = getEmailWorkerName();
 	const rules = await listEmailRoutingRules(env, zoneId);

@@ -2,11 +2,12 @@
 
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { authFetch } from "@/lib/auth/client";
+import { fetchSessionInfo, peekSessionInfo } from "@/hooks/use-current-user";
 import type { AuthGuardProps } from "./auth-guard-types";
 import { LoadingTransition } from "@/components/loading-transition";
+import { saveUserTimeZonePreference } from "@/lib/time/client";
 
-export function AuthGuard({ children, mode = "protected", requireMailbox, requireRole }: AuthGuardProps) {
+export function AuthGuard({ children, mode = "protected", requireMailbox, requireRole, requirePrimary, requireFeature, allowAuthenticated }: AuthGuardProps) {
 	const pathname = usePathname();
 	const router = useRouter();
 	const [authorized, setAuthorized] = useState(mode === "public");
@@ -16,27 +17,27 @@ export function AuthGuard({ children, mode = "protected", requireMailbox, requir
 
 		async function checkSession() {
 			try {
-				const cookieResponse = await fetch("/api/auth/me", {
-					cache: "no-store",
-					signal: AbortSignal.timeout(5_000),
-				});
-				const response = cookieResponse.ok || cookieResponse.status !== 401
-					? cookieResponse
-					: await authFetch("/api/auth/me", {
-						redirectOnUnauthorized: false,
-						signal: AbortSignal.timeout(5_000),
-					});
+				// Login pages and onboarding change the answer, so only a finished setup is reused across navigations.
+				const cached = mode === "protected" ? peekSessionInfo() : null;
+				const response = cached && cached.isSetup !== false && cached.hasMailboxes !== false
+					? cached
+					: await fetchSessionInfo({ fresh: true });
 				if (cancelled) return;
+				if (!response) {
+					setAuthorized(true);
+					return;
+				}
 
-				if (!response.ok) {
+				if (response.status !== 200) {
 					if (mode === "protected" && response.status === 401) router.replace("/login");
 					else setAuthorized(true);
 					return;
 				}
 
-				const data = (await response.json()) as { hasMailboxes?: boolean; isSetup?: boolean; user?: { role?: string } };
+				const data = response;
+				if (data.user?.id) saveUserTimeZonePreference(data.user.id, data.user.timeZone ?? null);
 				if (mode === "public") {
-					router.replace("/inbox");
+					if (!allowAuthenticated) router.replace("/inbox");
 					return;
 				}
 
@@ -55,6 +56,17 @@ export function AuthGuard({ children, mode = "protected", requireMailbox, requir
 					return;
 				}
 
+				if (requirePrimary && !data.user?.isPrimaryAdmin) {
+					router.replace("/admin");
+					return;
+				}
+
+				if ((requireFeature === "calendar" && data.user?.calendarEnabled === false)
+					|| (requireFeature === "drive" && data.user?.driveEnabled === false)) {
+					router.replace("/inbox");
+					return;
+				}
+
 				setAuthorized(true);
 			} catch {
 				if (!cancelled) setAuthorized(true);
@@ -66,7 +78,15 @@ export function AuthGuard({ children, mode = "protected", requireMailbox, requir
 		return () => {
 			cancelled = true;
 		};
-	}, [mode, pathname, requireMailbox, requireRole, router]);
+	}, [mode, pathname, requireMailbox, requireRole, requirePrimary, requireFeature, allowAuthenticated, router]);
+
+	useEffect(() => {
+		const refreshTimeZone = (event: StorageEvent) => {
+			if (event.key === "mailflare-user-time-zone") window.location.reload();
+		};
+		window.addEventListener("storage", refreshTimeZone);
+		return () => window.removeEventListener("storage", refreshTimeZone);
+	}, []);
 
 	if (mode === "public") return <>{children}</>;
 	return <LoadingTransition ready={authorized}>{children}</LoadingTransition>;

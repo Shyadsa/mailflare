@@ -16,11 +16,14 @@ export function formatEmailAddress(address: string, name?: string | null): strin
 
 export function parseEmailAddressParts(value: string): EmailAddressParts {
 	const trimmed = value.trim();
-	const headerMatch = trimmed.match(/^(?:"([^"]+)"|([^<"]+))\s*<([^>]+)>$/);
+	// A quoted display name may contain backslash-escaped quotes and
+	// backslashes, as written by formatEmailAddress (`"Maya \"MJ\" Chen"`).
+	const headerMatch = trimmed.match(/^(?:"((?:[^"\\]|\\.)*)"|([^<"]+))\s*<([^>]+)>$/);
 
 	if (headerMatch) {
+		const quotedName = headerMatch[1]?.replace(/\\(.)/g, "$1");
 		return {
-			name: (headerMatch[1] ?? headerMatch[2] ?? "").trim() || null,
+			name: (quotedName ?? headerMatch[2] ?? "").trim() || null,
 			address: headerMatch[3].trim(),
 		};
 	}
@@ -45,21 +48,84 @@ export function getEmailDisplayName(value: string): string {
 }
 
 export function formatPostalAddress(address: Address | undefined, fallback: string | null): string | null {
-	const mailbox = getFirstPostalMailbox(address);
+	const [mailbox] = getPostalMailboxes(address);
 	if (!mailbox?.address) return fallback;
 
 	return formatEmailAddress(mailbox.address, mailbox.name);
 }
 
+/**
+ * Every mailbox in a header address list, formatted and comma-joined, so that a
+ * message's full To/Cc line survives storage and reply-all can see it.
+ */
 export function formatPostalAddressList(addresses: Address[] | undefined, fallback: string | null): string | null {
-	const mailbox = addresses?.map(getFirstPostalMailbox).find((item): item is Mailbox => !!item?.address);
-	if (!mailbox?.address) return fallback;
+	const mailboxes = (addresses ?? []).flatMap(getPostalMailboxes).filter((item) => !!item.address);
+	if (mailboxes.length === 0) return fallback;
 
-	return formatEmailAddress(mailbox.address, mailbox.name);
+	return mailboxes.map((mailbox) => formatEmailAddress(mailbox.address, mailbox.name)).join(", ");
 }
 
-function getFirstPostalMailbox(address: Address | undefined): Mailbox | null {
-	if (!address) return null;
-	if ("address" in address && address.address) return address;
-	return address.group ? address.group[0] : null;
+function getPostalMailboxes(address: Address | undefined): Mailbox[] {
+	if (!address) return [];
+	if ("address" in address && address.address) return [address];
+	return address.group ?? [];
+}
+
+/**
+ * Split a comma-separated header value into individual addresses, leaving
+ * commas inside quoted display names (`"Chen, Maya" <maya@example.com>`) alone.
+ */
+export function splitEmailAddressList(value: string | null | undefined): string[] {
+	const result: string[] = [];
+	let current = "";
+	let inQuotes = false;
+	let inAngle = false;
+	let escaped = false;
+
+	for (const char of value ?? "") {
+		if (escaped) {
+			escaped = false;
+			current += char;
+			continue;
+		}
+		if (char === "\\" && inQuotes) {
+			escaped = true;
+			current += char;
+			continue;
+		}
+		if (char === '"' && !inAngle) inQuotes = !inQuotes;
+		else if (char === "<" && !inQuotes) inAngle = true;
+		else if (char === ">" && !inQuotes) inAngle = false;
+
+		if ((char === "," || char === ";") && !inQuotes && !inAngle) {
+			if (current.trim()) result.push(current.trim());
+			current = "";
+			continue;
+		}
+		current += char;
+	}
+	if (current.trim()) result.push(current.trim());
+	return result;
+}
+
+/** Bare, lower-cased addresses from a header list, deduplicated in order. */
+export function getEmailAddressList(value: string | null | undefined): string[] {
+	const seen = new Set<string>();
+	const result: string[] = [];
+	for (const entry of splitEmailAddressList(value)) {
+		const address = normalizeEmailAddress(entry);
+		if (!address || seen.has(address)) continue;
+		seen.add(address);
+		result.push(address);
+	}
+	return result;
+}
+
+export function joinEmailAddressList(values: string[]): string {
+	return values.map((value) => value.trim()).filter(Boolean).join(", ");
+}
+
+/** The first address of a list, for places that show a single party. */
+export function getFirstEmailAddressEntry(value: string | null | undefined): string {
+	return splitEmailAddressList(value)[0] ?? (value ?? "").trim();
 }
