@@ -1,14 +1,19 @@
 import type { MailboxOption } from "@/components/mailbox-provider";
 import { clearMailboxesCache } from "@/components/mailbox-provider-utils";
 import { authFetch } from "@/lib/auth/client";
+import { requestError } from "@/lib/http/client-error";
 import type {
 	CurrentMailboxFormResponse,
-	ForwardingEmailResponse,
 	MailboxAutoReplyResponse,
 	MailboxAutoReplySettings,
 	MailboxSignatureResponse,
 } from "./types";
-import type { AccountSettingsResponse, ChangePasswordResponse } from "./types";
+import type {
+	AccountSettingsResponse,
+	ChangePasswordResponse,
+	MfaEnrollmentResponse,
+	MfaRecoveryCodesResponse,
+} from "./types";
 
 export function getMailboxAddress(mailbox: Pick<MailboxOption, "localPart" | "hostname">): string {
 	return `${mailbox.localPart}@${mailbox.hostname}`;
@@ -29,6 +34,7 @@ export async function updateCurrentMailboxName(id: string, displayName: string):
 
 	return {
 		id: data.mailbox.id,
+		domainId: data.mailbox.domainId,
 		localPart: data.mailbox.localPart,
 		hostname: data.mailbox.hostname,
 		displayName: data.mailbox.displayName,
@@ -46,19 +52,6 @@ export async function loadAccountSettings(): Promise<Required<AccountSettingsRes
 	}
 
 	return data.user;
-}
-
-export async function updateForwardingEmail(forwardingEmail: string): Promise<string> {
-	const res = await authFetch("/api/settings/forwarding", {
-		method: "PATCH",
-		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ forwardingEmail }),
-	});
-	const data = (await res.json()) as ForwardingEmailResponse;
-	if (!res.ok) {
-		throw new Error(typeof data.error === "string" ? data.error : "Failed to update forwarding email");
-	}
-	return data.forwardingEmail ?? "";
 }
 
 export async function updateMailboxSignature(mailboxId: string, signature: string): Promise<string> {
@@ -108,7 +101,50 @@ export async function updatePassword(currentPassword: string, newPassword: strin
 	});
 	const data = (await res.json()) as ChangePasswordResponse;
 
-	if (!res.ok) {
-		throw new Error(typeof data.error === "string" ? data.error : "Failed to change password");
-	}
+	if (!res.ok) throw requestError(data, "Failed to change password");
+}
+
+/** An API key limited to the JMAP scope, for external mail apps. */
+export async function createJmapApiKey(name: string, mailboxIds: string[]): Promise<string> {
+	const res = await authFetch("/api/api-keys", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ name, scopes: ["jmap"], mailboxIds }),
+	});
+	const data = (await res.json().catch(() => ({}))) as { key?: string; error?: unknown };
+	if (!res.ok || !data.key) throw new Error(typeof data.error === "string" ? data.error : "Could not create a key");
+	window.dispatchEvent(new Event("mailflare:api-keys-changed"));
+	return data.key;
+}
+
+export async function beginMfaEnrollment(password: string | null, stepUpToken?: string): Promise<Required<Pick<MfaEnrollmentResponse, "secret" | "otpauthUrl" | "qrSvg">>> {
+	const res = await authFetch("/api/settings/mfa/enroll", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ password: password ?? undefined, stepUpToken }),
+	});
+	const data = (await res.json()) as MfaEnrollmentResponse;
+	if (!res.ok || !data.secret || !data.otpauthUrl || !data.qrSvg) throw requestError(data, "Could not start enrolment");
+	return { secret: data.secret, otpauthUrl: data.otpauthUrl, qrSvg: data.qrSvg };
+}
+
+export async function confirmMfaEnrollment(code: string): Promise<string[]> {
+	const res = await authFetch("/api/settings/mfa/confirm", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ code }),
+	});
+	const data = (await res.json()) as MfaRecoveryCodesResponse;
+	if (!res.ok || !data.recoveryCodes) throw requestError(data, "Could not confirm the code");
+	return data.recoveryCodes;
+}
+
+export async function disableMfa(input: { password?: string; stepUpToken?: string }): Promise<void> {
+	const res = await authFetch("/api/settings/mfa/disable", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify(input),
+	});
+	const data = (await res.json()) as { error?: unknown; code?: unknown };
+	if (!res.ok) throw requestError(data, "Could not turn off two-factor authentication");
 }

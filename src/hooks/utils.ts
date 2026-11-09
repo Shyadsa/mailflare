@@ -1,30 +1,22 @@
 import { authFetch } from "@/lib/auth/client";
+import { parseSearchQuery } from "@/lib/search/query-utils";
+import { getUserTimeZone } from "@/lib/time/utils";
+import { setCachedMessageRead } from "@/lib/messages/detail-cache";
+import { isReadOnlyChange } from "@/lib/messages/change-events";
 import type { MessageFilterOptions, MessageFolder } from "./types";
 import type { MessageCounts, MessageListResponse } from "./types";
 
-export const MESSAGE_POLL_INTERVAL_MS = 15_000;
-
+/**
+ * The search string goes to the server whole; operators are parsed there
+ * against the full-text index. Only the read state is lifted out here so the
+ * unread toggle and `is:unread` share one `read` parameter.
+ */
 export function parseMessageSearchQuery(query: string): MessageFilterOptions {
-	let remaining = query;
+	const parsed = parseSearchQuery(query);
 	const filters: MessageFilterOptions = {};
-	const titleMatch = remaining.match(/\btitle:"([^"]+)"/i) ?? remaining.match(/\btitle:([^\s]+)/i);
-
-	if (titleMatch?.[1]) {
-		filters.title = titleMatch[1].trim();
-		remaining = remaining.replace(titleMatch[0], " ");
-	}
-
-	if (/(^|\s):unread(\s|$)/i.test(remaining)) {
-		filters.read = "unread";
-		remaining = remaining.replace(/(^|\s):unread(?=\s|$)/gi, " ");
-	} else if (/(^|\s):read(\s|$)/i.test(remaining)) {
-		filters.read = "read";
-		remaining = remaining.replace(/(^|\s):read(?=\s|$)/gi, " ");
-	}
-
-	const textQuery = remaining.replace(/\s+/g, " ").trim();
-	if (textQuery) filters.query = textQuery;
-
+	if (parsed.read) filters.read = parsed.read;
+	const remaining = query.replace(/(^|\s)(is:(un)?read|:(un)?read)(?=\s|$)/gi, " ").replace(/\s+/g, " ").trim();
+	if (remaining) filters.query = remaining;
 	return filters;
 }
 
@@ -35,6 +27,7 @@ export function getMessageQueryParams(
 	folderId?: string | null,
 ) {
 	const params = new URLSearchParams();
+	params.set("timeZone", getUserTimeZone());
 
 	if (folder === "inbox") {
 		params.set("direction", "inbound");
@@ -46,6 +39,11 @@ export function getMessageQueryParams(
 	if (folder === "sent") {
 		params.set("direction", "outbound");
 		params.set("status", "sent");
+	}
+
+	if (folder === "scheduled") {
+		params.set("direction", "outbound");
+		params.set("scheduled", "true");
 	}
 
 	if (folder === "drafts") {
@@ -68,6 +66,7 @@ export function getMessageQueryParams(
 	if (parsedFilters?.read && parsedFilters.read !== "all") params.set("read", parsedFilters.read);
 	if (filters?.limit) params.set("limit", String(filters.limit));
 	if (filters?.offset) params.set("offset", String(filters.offset));
+	if (filters?.group) params.set("group", filters.group);
 
 	return params;
 }
@@ -86,7 +85,44 @@ export function clearMessageCountsCache() {
 }
 
 export function clearMessageListCache() {
+	messageCacheGeneration += 1;
 	messageListCache.clear();
+	messageListRequests.clear();
+}
+
+/**
+ * Mirror a read/unread change into the cached lists and details, so a list
+ * remounted later (or a detail reopened) never shows the old state.
+ */
+export function markMessagesReadInCaches(messageIds: string[], read: boolean) {
+	const ids = new Set(messageIds);
+	for (const [key, response] of messageListCache) {
+		if (!response.messages?.some((message) => ids.has(message.id)
+			|| message.threadMessageIds?.some((id) => ids.has(id)))) continue;
+		messageListCache.set(key, {
+			...response,
+			messages: response.messages.map((message) => {
+				if (message.threadMessageIds) {
+					const threadSize = message.threadMessageIds.length;
+					const flipped = message.threadMessageIds.reduce((total, id) => total + (ids.has(id) ? 1 : 0), 0);
+					if (!flipped) return message;
+					const threadUnread = Math.min(threadSize, Math.max(0, (message.threadUnread ?? 0) + (read ? -flipped : flipped)));
+					return { ...message, read: threadUnread === 0, threadUnread };
+				}
+				return ids.has(message.id) ? { ...message, read } : message;
+			}),
+		});
+	}
+	for (const id of ids) setCachedMessageRead(id, read);
+}
+
+// Caches must drop on every change, including ones made while no list is mounted
+// (e.g. reading a message from the popup on a page without the inbox list).
+if (typeof window !== "undefined") {
+	window.addEventListener("mailflare:messages-changed", (event) => {
+		if (!isReadOnlyChange(event)) clearMessageListCache();
+		clearMessageCountsCache();
+	});
 }
 
 export function clearMessageClientState() {
@@ -130,11 +166,14 @@ export async function fetchMessageCounts(mailboxId?: string | null, force = fals
 	return request;
 }
 
+export function peekMessageList(params: URLSearchParams): MessageListResponse | undefined {
+	return messageListCache.get(params.toString());
+}
+
 export async function fetchMessageList(params: URLSearchParams, force = false): Promise<MessageListResponse> {
 	const key = params.toString();
 	if (!force && messageListCache.has(key)) return messageListCache.get(key) ?? {};
-	if (messageListRequests.has(key)) return messageListRequests.get(key) ?? {};
-
+	if (!force && messageListRequests.has(key)) return messageListRequests.get(key) ?? {};
 	const requestGeneration = messageCacheGeneration;
 	const request = authFetch(`/api/messages?${key}`)
 		.then((res) => res.json())

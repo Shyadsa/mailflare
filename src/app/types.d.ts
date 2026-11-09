@@ -1,9 +1,25 @@
-import type { LucideIcon } from "lucide-react";
+import type { TranslationKey } from "@/lib/i18n/types";
+import type { LucideIcon } from "@/components/icons";
 import type { ButtonProps } from "@/components/ui/button";
+import type { MailboxSelectorUser } from "@/components/mailbox-selector-types";
+import type { ReactNode } from "react";
+
+export type HomeAuthProviderProps = {
+	children: ReactNode;
+	/**
+	 * The account resolved from the session cookie on the server. `undefined`
+	 * means the server did not answer, so the provider must check itself.
+	 */
+	initialUser?: MailboxSelectorUser | null;
+};
+
+export type HomeAccountMenuProps = {
+	user: MailboxSelectorUser;
+};
 
 export type HomeAction = {
 	href: string;
-	label: string;
+	labelKey: TranslationKey;
 	variant: ButtonProps["variant"];
 };
 
@@ -13,7 +29,7 @@ export type LandingNavItem = {
 };
 
 export type SidebarItem = {
-	label: string;
+	labelKey: TranslationKey;
 	icon: LucideIcon;
 	active?: boolean;
 	count?: string;
@@ -22,9 +38,9 @@ export type SidebarItem = {
 export type MailPreview = {
 	icon: LucideIcon;
 	sender: string;
-	subject: string;
-	preview: string;
-	badge: string;
+	subjectKey: TranslationKey;
+	previewKey: TranslationKey;
+	badgeKey: TranslationKey;
 };
 
 export type LandingStat = {

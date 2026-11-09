@@ -1,6 +1,7 @@
-import { persistAuthSession } from "@/lib/auth/client";
+import { clearClientSessionToken } from "@/lib/auth/client";
 import type {
 	DomainSetupResult,
+	MxCheckResult,
 	RegisterResult,
 	SetupPreparationResult,
 	SetupStatus,
@@ -21,11 +22,11 @@ export async function getSetupStatus(): Promise<SetupStatus> {
 	return data;
 }
 
-export async function submitPrimaryDomain(form: FormData): Promise<{ ok: boolean; data: DomainSetupResult }> {
+export async function submitPrimaryDomain(hostname: string): Promise<{ ok: boolean; data: DomainSetupResult }> {
 	const res = await fetch("/api/setup/domain", {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
-		body: JSON.stringify({ hostname: form.get("domain") }),
+		body: JSON.stringify({ hostname }),
 	});
 
 	return {
@@ -34,9 +35,22 @@ export async function submitPrimaryDomain(form: FormData): Promise<{ ok: boolean
 	};
 }
 
+export async function checkExistingMx(hostname: string): Promise<{ ok: boolean; data: MxCheckResult }> {
+	const res = await fetch("/api/setup/domain/mx", {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ hostname }),
+	});
+
+	return {
+		ok: res.ok,
+		data: (await res.json()) as MxCheckResult,
+	};
+}
+
 export async function submitRegistration(
 	form: FormData,
-	payload: { firstRun: boolean; domain: string },
+	payload: { firstRun: boolean; domain: string; enableSending?: boolean; replaceMxRecords?: boolean; skipDns?: boolean },
 ): Promise<{ ok: boolean; data: RegisterResult }> {
 	const res = await fetch("/api/auth/register", {
 		method: "POST",
@@ -45,22 +59,26 @@ export async function submitRegistration(
 			payload.firstRun
 				? {
 						domain: payload.domain,
+						enableSending: payload.enableSending,
+						replaceMxRecords: payload.replaceMxRecords,
+						skipDns: payload.skipDns,
 						username: form.get("username"),
-						password: form.get("password"),
+						password: form.get("usePasskey") === "on" ? undefined : form.get("password"),
+						usePasskey: form.get("usePasskey") === "on",
 						resetEmail: form.get("resetEmail"),
 						turnstileToken: form.get("turnstileToken"),
 					}
 				: {
 						username: form.get("username"),
-						password: form.get("password"),
+						password: form.get("usePasskey") === "on" ? undefined : form.get("password"),
+						usePasskey: form.get("usePasskey") === "on",
 						resetEmail: form.get("resetEmail"),
 						turnstileToken: form.get("turnstileToken"),
 					},
 		),
 	});
 
-	return {
-		ok: res.ok,
-		data: (await persistAuthSession(res)) as RegisterResult,
-	};
+	const data = (await res.json()) as RegisterResult;
+	if (res.ok) clearClientSessionToken();
+	return { ok: res.ok, data };
 }

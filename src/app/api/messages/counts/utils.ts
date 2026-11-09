@@ -18,6 +18,7 @@ export function createEmptyFolderCounts(): MessageCounts["folders"] {
 		starred: { total: 0, unread: 0 },
 		snoozed: { total: 0, unread: 0 },
 		sent: { total: 0, unread: 0 },
+		scheduled: { total: 0, unread: 0 },
 		drafts: { total: 0, unread: 0 },
 		archived: { total: 0, unread: 0 },
 		spam: { total: 0, unread: 0 },
@@ -31,21 +32,22 @@ export function buildMessageCounts(rows: MessageCountRow[]): MessageCounts {
 	const mailboxMap = new Map<string, { mailboxId: string; total: number; unread: number; inbox: number }>();
 
 	for (const row of rows) {
+		const weight = row.total ?? 1;
 		const folder = getMessageFolder(row);
 		const unread = row.direction === "inbound" && !row.read;
 		if (row.starred) {
-			folders.starred.total += 1;
-			if (unread) folders.starred.unread += 1;
+			folders.starred.total += weight;
+			if (unread) folders.starred.unread += weight;
 		}
 		if (folder) {
-			folders[folder].total += 1;
-			if (unread) folders[folder].unread += 1;
+			folders[folder].total += weight;
+			if (unread) folders[folder].unread += weight;
 		}
 
 		if (row.folderId) {
 			const folderCount = customFolders[row.folderId] ?? { total: 0, unread: 0 };
-			folderCount.total += 1;
-			if (unread) folderCount.unread += 1;
+			folderCount.total += weight;
+			if (unread) folderCount.unread += weight;
 			customFolders[row.folderId] = folderCount;
 		}
 
@@ -57,9 +59,9 @@ export function buildMessageCounts(rows: MessageCountRow[]): MessageCounts {
 			unread: 0,
 			inbox: 0,
 		};
-		mailboxCount.total += 1;
-		if (unread) mailboxCount.unread += 1;
-		if (folder === "inbox") mailboxCount.inbox += 1;
+		mailboxCount.total += weight;
+		if (unread) mailboxCount.unread += weight;
+		if (folder === "inbox") mailboxCount.inbox += weight;
 		mailboxMap.set(row.mailboxId, mailboxCount);
 	}
 

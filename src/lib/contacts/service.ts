@@ -1,9 +1,10 @@
 import { and, eq, inArray } from "drizzle-orm";
 import { getDb } from "@/db";
 import { contacts, routingRules } from "@/db/schema";
-import { normalizeEmailAddress } from "@/lib/email/address";
-import type { BlockContactInput, ContactInput, MessageContactNames } from "@/lib/contacts/types";
-import { getContactId, getContactNameFromAddress } from "@/lib/contacts/utils";
+import { getFirstEmailAddressEntry, normalizeEmailAddress } from "@/lib/email/address";
+import type { BlockContactInput, ContactDisplayName, ContactInput, MessageContactNames } from "@/lib/contacts/types";
+import { getContactId, getContactNameFromAddress, getSenderDisplayName } from "@/lib/contacts/utils";
+import { importGravatarAvatar } from "@/lib/contacts/gravatar";
 
 export async function upsertContactFromAddress(env: CloudflareEnv, input: ContactInput) {
 	const email = normalizeEmailAddress(input.address);
@@ -19,8 +20,10 @@ export async function upsertContactFromAddress(env: CloudflareEnv, input: Contac
 	const now = new Date();
 
 	if (existing) {
-		const nextDisplayName = getNextDisplayName(existing.displayName, existing.source, displayName);
-		const nextSource = existing.source === "manual" ? "manual" : input.source;
+		const nextDisplayName = getNextDisplayName(existing.displayName, existing.source, displayName, input.source);
+		const nextSource = existing.source === "manual" || (existing.source === "outbound" && input.source === "inbound")
+			? existing.source
+			: input.source;
 
 		await db
 			.update(contacts)
@@ -41,7 +44,11 @@ export async function upsertContactFromAddress(env: CloudflareEnv, input: Contac
 		displayName,
 		source: input.source,
 		lastSeenAt: now,
-	});
+	}).onConflictDoNothing(); // Two messages from a new sender can be processed at once.
+	const avatarKey = input.lookupAvatar === false ? null : await importGravatarAvatar(env, input.userId, email);
+	if (avatarKey) {
+		await db.update(contacts).set({ avatarKey }).where(eq(contacts.id, id));
+	}
 
 	const [created] = await db.select().from(contacts).where(eq(contacts.id, id)).limit(1);
 	return created ?? null;
@@ -49,7 +56,7 @@ export async function upsertContactFromAddress(env: CloudflareEnv, input: Contac
 
 export async function getContactDisplayNameMap(env: CloudflareEnv, userId: string, addresses: string[]) {
 	const emails = Array.from(new Set(addresses.map(normalizeEmailAddress).filter(Boolean)));
-	if (emails.length === 0) return new Map<string, string>();
+	if (emails.length === 0) return new Map<string, ContactDisplayName>();
 
 	const db = getDb(env);
 	const rows = await db
@@ -57,11 +64,26 @@ export async function getContactDisplayNameMap(env: CloudflareEnv, userId: strin
 		.from(contacts)
 		.where(and(eq(contacts.userId, userId), inArray(contacts.email, emails)));
 
-	return new Map(
-		rows
-			.filter((contact) => !!contact.displayName)
-			.map((contact) => [contact.email, contact.displayName!]),
-	);
+	const entries = rows
+		.filter((contact) => !!contact.displayName)
+		.map((contact): [string, ContactDisplayName] => [
+			contact.email,
+			{ displayName: contact.displayName!, source: contact.source },
+		]);
+	return new Map(entries);
+}
+
+export async function getContactAvatarMap(env: CloudflareEnv, userId: string, addresses: string[]) {
+	const emails = Array.from(new Set(addresses.map(normalizeEmailAddress).filter(Boolean)));
+	if (emails.length === 0) return new Map<string, boolean>();
+
+	const db = getDb(env);
+	const rows = await db
+		.select({ email: contacts.email, avatarKey: contacts.avatarKey })
+		.from(contacts)
+		.where(and(eq(contacts.userId, userId), inArray(contacts.email, emails)));
+
+	return new Map(rows.map((contact) => [contact.email, !!contact.avatarKey]));
 }
 
 export async function getMessageContactNames(
@@ -70,11 +92,13 @@ export async function getMessageContactNames(
 	fromAddr: string,
 	toAddr: string,
 ): Promise<MessageContactNames> {
-	const contactMap = await getContactDisplayNameMap(env, userId, [fromAddr, toAddr]);
+	// `toAddr` may be a full recipient list; the name shown belongs to the first one.
+	const firstTo = getFirstEmailAddressEntry(toAddr);
+	const contactMap = await getContactDisplayNameMap(env, userId, [fromAddr, firstTo]);
 
 	return {
-		fromContactName: contactMap.get(normalizeEmailAddress(fromAddr)) ?? null,
-		toContactName: contactMap.get(normalizeEmailAddress(toAddr)) ?? null,
+		fromContactName: getSenderDisplayName(fromAddr, contactMap.get(normalizeEmailAddress(fromAddr))),
+		toContactName: contactMap.get(normalizeEmailAddress(firstTo))?.displayName ?? null,
 	};
 }
 
@@ -100,7 +124,11 @@ export async function blockContact(env: CloudflareEnv, input: BlockContactInput)
 			source: "inbound",
 			blocked: true,
 			lastSeenAt: new Date(),
-		});
+		}).onConflictDoUpdate({ target: contacts.id, set: { blocked: true } });
+		const avatarKey = await importGravatarAvatar(env, input.userId, email);
+		if (avatarKey) {
+			await db.update(contacts).set({ avatarKey }).where(eq(contacts.id, contactId));
+		}
 	}
 
 	const [existingRule] = await db
@@ -134,8 +162,10 @@ export async function blockContact(env: CloudflareEnv, input: BlockContactInput)
 	return { email, blocked: true };
 }
 
-function getNextDisplayName(existingName: string | null, source: string, nextName: string | null): string | null {
+function getNextDisplayName(existingName: string | null, source: string, nextName: string | null, incomingSource: string): string | null {
 	if (source === "manual") return existingName;
+	// A sender chooses its own From name, so inbound mail may name a contact but never rename one.
+	if (incomingSource === "inbound" && existingName) return existingName;
 	if (nextName) return nextName;
 	return existingName;
 }

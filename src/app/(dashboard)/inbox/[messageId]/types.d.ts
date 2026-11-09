@@ -9,6 +9,10 @@ export type MessageDetailResponse = {
 	} | null;
 	attachments?: MessageAttachment[];
 	unsubscribeUrl?: string | null;
+	/** Unsubscribe link found in the body when the message has no List-Unsubscribe header. */
+	unsubscribeViaBody?: string | null;
+	/** ISO time a queued message is waiting to be sent, when it is a scheduled send. */
+	scheduledAt?: string | null;
 	error?: string;
 };
 
@@ -24,5 +28,7 @@ export type MessageAttachment = {
 
 export type MessageBodyDisplay = ReplyContentParts & {
 	htmlBody: string | null;
+	/** Quoted/forwarded HTML a Mailflare composer folded under the message, shown collapsed. */
+	quotedHtml: string | null;
 	hasQuotedContent: boolean;
 };

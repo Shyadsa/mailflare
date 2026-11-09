@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+/deploy/cloudflare-email-relay/node_modules
 /.pnp
 .pnp.*
 .yarn/*
@@ -11,14 +12,20 @@
 !.yarn/versions
 
 # testing
+test-results/
+playwright-report/
 /coverage
 
 # next.js
 /.next/
+/.next-node/
 /out/
 
 # production
 /build
+/dist
+/data
+.env.docker
 
 # misc
 .DS_Store
@@ -41,8 +48,9 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# OpenNext
-/.open-next
+# vinext
+/.vinext
+/src/lib/migrations/bundle.json
 
 # wrangler files
 .wrangler
@@ -53,3 +61,7 @@ next-env.d.ts
 yarn.lock
 wrangler.prod.jsonc
 mailflare-landing
+
+.agents
+skills-lock.json
+/dist/

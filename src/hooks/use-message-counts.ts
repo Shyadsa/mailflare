@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import type { MessageCounts, MessageCountsDelta } from "./types";
 import { clearMessageCountsCache, fetchMessageCounts } from "./utils";
 
+const REFRESH_DEBOUNCE_MS = 150;
+
 const emptyCounts: MessageCounts = {
 	folders: {
 		inbox: { total: 0, unread: 0 },
 		starred: { total: 0, unread: 0 },
 		snoozed: { total: 0, unread: 0 },
 		sent: { total: 0, unread: 0 },
+		scheduled: { total: 0, unread: 0 },
 		drafts: { total: 0, unread: 0 },
 		archived: { total: 0, unread: 0 },
 		spam: { total: 0, unread: 0 },
@@ -28,21 +31,30 @@ export function useMessageCounts(mailboxId?: string | null, enabled = true) {
 		}
 
 		let cancelled = false;
+		let refreshTimer: number | null = null;
+		let requestNumber = 0;
 
-		async function loadCounts(force = false) {
+		async function loadCounts() {
+			const currentRequest = ++requestNumber;
 			setIsLoading(true);
 			try {
-				const nextCounts = await fetchMessageCounts(mailboxId, force);
-				if (!cancelled) setCounts(nextCounts ?? emptyCounts);
+				const nextCounts = await fetchMessageCounts(mailboxId);
+				if (!cancelled && currentRequest === requestNumber) setCounts(nextCounts ?? emptyCounts);
 			} finally {
-				if (!cancelled) setIsLoading(false);
+				if (!cancelled && currentRequest === requestNumber) setIsLoading(false);
 			}
 		}
 
 		void loadCounts();
 		function onMessagesChanged() {
 			clearMessageCountsCache();
-			void loadCounts(true);
+			if (document.visibilityState !== "visible") return;
+			if (refreshTimer) window.clearTimeout(refreshTimer);
+			refreshTimer = window.setTimeout(() => {
+				refreshTimer = null;
+				// The cache was cleared above, so hooks refreshing for the same change share one request.
+				void loadCounts();
+			}, REFRESH_DEBOUNCE_MS);
 		}
 		function onMessageCountsDelta(event: Event) {
 			const detail = (event as CustomEvent<MessageCountsDelta>).detail;
@@ -53,7 +65,7 @@ export function useMessageCounts(mailboxId?: string | null, enabled = true) {
 					...current.folders,
 					inbox: {
 						...current.folders.inbox,
-						unread: Math.max(0, current.folders.inbox.unread + detail.inboxUnreadDelta),
+						unread: Math.max(0, current.folders.inbox.unread + (detail.inboxUnreadDelta ?? 0)),
 					},
 				},
 			}));
@@ -61,14 +73,13 @@ export function useMessageCounts(mailboxId?: string | null, enabled = true) {
 		window.addEventListener("mailflare:messages-changed", onMessagesChanged);
 		window.addEventListener("mailflare:message-counts-changed", onMessagesChanged);
 		window.addEventListener("mailflare:message-counts-delta", onMessageCountsDelta);
-		const refreshInterval = window.setInterval(() => void loadCounts(true), 15_000);
 
 		return () => {
 			cancelled = true;
 			window.removeEventListener("mailflare:messages-changed", onMessagesChanged);
 			window.removeEventListener("mailflare:message-counts-changed", onMessagesChanged);
 			window.removeEventListener("mailflare:message-counts-delta", onMessageCountsDelta);
-			window.clearInterval(refreshInterval);
+			if (refreshTimer) window.clearTimeout(refreshTimer);
 		};
 	}, [enabled, mailboxId]);
 
