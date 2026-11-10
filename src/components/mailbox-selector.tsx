@@ -108,7 +108,7 @@ function MailboxAccountRow({ mailbox, unread, avatarUrl, onSelect }: MailboxAcco
 		<button
 			type="button"
 			onClick={onSelect}
-			className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-white"
+			className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-start transition-colors hover:bg-white"
 		>
 			<AccountAvatar
 				name={name}
@@ -303,7 +303,7 @@ export function MailboxSelector({ initialUser }: MailboxSelectorProps = {}) {
 			)}
 
 			{open && (
-				<div className="absolute right-0 top-14 w-[360px] overflow-hidden rounded-[28px] border border-neutral-200 bg-[#eef3fb] p-3 shadow-2xl shadow-neutral-900/20 max-h-[82vh] overflow-y-auto z-90">
+				<div className="absolute end-0 top-14 w-[min(360px,calc(100vw-1.5rem))] overflow-hidden rounded-[28px] border border-neutral-200 bg-[#eef3fb] p-3 shadow-2xl shadow-neutral-900/20 max-h-[82vh] overflow-y-auto z-90">
 					<div className="rounded-[22px] bg-white px-5 py-5">
 						<div className="flex items-center gap-4">
 							<AccountAvatar
@@ -411,7 +411,7 @@ export function MailboxSelector({ initialUser }: MailboxSelectorProps = {}) {
 									key={account.userId}
 									type="button"
 									onClick={() => void switchAccount(account.userId)}
-									className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left transition-colors hover:bg-white"
+									className="flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-start transition-colors hover:bg-white"
 								>
 									<AccountAvatar
 										name={account.name}
