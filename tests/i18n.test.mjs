@@ -149,11 +149,13 @@ test("root layout passes the same cookie locale to HTML and provider on first re
 	const pt = await i18n.renderLayout("pt-BR");
 	assert.match(pt, /<html lang="pt-BR"/);
 	assert.match(pt, /<span>Entrada<\/span>/);
-	for (const value of [undefined, "bad"]) {
-		const english = await i18n.renderLayout(value);
-		assert.match(english, /<html lang="en"/);
-		assert.match(english, />Inbox<\/span>/);
-	}
+	// No preference cookie: this installation defaults to Arabic, right to left.
+	const arabic = await i18n.renderLayout(undefined);
+	assert.match(arabic, /<html lang="ar" dir="rtl"/);
+	// An unrecognised cookie value still falls back to English.
+	const english = await i18n.renderLayout("bad");
+	assert.match(english, /<html lang="en"/);
+	assert.match(english, />Inbox<\/span>/);
 });
 
 test("a locale registered once reaches resolution, translation, cookie, selector and SSR", async () => {

@@ -4,8 +4,11 @@ import { LOCALE_COOKIE, createTranslator, loadMessages, resolveLocale } from "./
 import type { Locale, Messages } from "./types";
 
 /** The locale chosen in the preference cookie, for server code that must render in it. */
+// This installation defaults to Arabic until someone picks another language in the selector.
+const INSTALLATION_DEFAULT_LOCALE = "ar";
+
 export async function getRequestLocale() {
-	return resolveLocale((await cookies()).get(LOCALE_COOKIE)?.value);
+	return resolveLocale((await cookies()).get(LOCALE_COOKIE)?.value ?? INSTALLATION_DEFAULT_LOCALE);
 }
 
 /** Server-side catalog load through the static assets binding; English when the catalog cannot be read. */
