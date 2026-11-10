@@ -23,18 +23,19 @@ const MAX_FOLDER_NAME = 80;
 const MAX_KEPT_ERRORS = 50;
 const MAX_ATTEMPTS = 4;
 
+// Gmail names its system labels in the account's language; English, German and Arabic are recognised.
 const SYSTEM_LABELS: Record<Exclude<TakeoutSection, "archived">, string[]> = {
-	inbox: ["inbox", "posteingang"],
-	sent: ["sent", "gesendet"],
-	drafts: ["drafts", "draft", "entwürfe"],
-	spam: ["spam"],
-	trash: ["trash", "bin", "papierkorb"],
+	inbox: ["inbox", "posteingang", "البريد الوارد"],
+	sent: ["sent", "gesendet", "تم الإرسال", "البريد المرسل"],
+	drafts: ["drafts", "draft", "entwürfe", "مسودّات", "مسودات", "المسودات"],
+	spam: ["spam", "الرسائل غير المرغوب فيها", "غير مرغوب فيه"],
+	trash: ["trash", "bin", "papierkorb", "المهملات", "سلة المهملات"],
 };
 const SECTION_PRIORITY = ["trash", "spam", "drafts", "sent", "inbox"] as const;
-const STARRED_LABELS = ["starred", "markiert"];
-const UNREAD_LABELS = ["unread", "ungelesen"];
-const IGNORED_LABELS = ["opened", "geöffnet", "important", "wichtig", "archived", "archiviert", "chat", "chats"];
-const IGNORED_LABEL_PREFIXES = ["category ", "kategorie "];
+const STARRED_LABELS = ["starred", "markiert", "مميّزة بنجمة", "مميزة بنجمة"];
+const UNREAD_LABELS = ["unread", "ungelesen", "غير مقروءة"];
+const IGNORED_LABELS = ["opened", "geöffnet", "important", "wichtig", "archived", "archiviert", "chat", "chats", "تم الفتح", "مهم", "الرسائل المؤرشفة", "الدردشة", "المحادثات"];
+const IGNORED_LABEL_PREFIXES = ["category ", "kategorie ", "الفئة ", "imap_"];
 const KNOWN_LABELS = new Set([...Object.values(SYSTEM_LABELS).flat(), ...STARRED_LABELS, ...UNREAD_LABELS]);
 
 const LF = 10;
@@ -128,15 +129,42 @@ function headerEnd(raw: Uint8Array): number {
 	return limit;
 }
 
+const ENCODED_WORD = /=\?([^?]+)\?([bq])\?([^?]*)\?=/gi;
+
+function encodedWordBytes(encoding: string, text: string): Uint8Array {
+	const binary = encoding.toLowerCase() === "b"
+		? atob(text)
+		: text.replace(/_/g, " ").replace(/=([0-9a-f]{2})/gi, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)));
+	return Uint8Array.from(binary, (char) => char.charCodeAt(0));
+}
+
+/**
+ * Decodes RFC 2047 encoded words. Whitespace between adjacent encoded words is not part of the text
+ * (RFC 2047 §6.2), and a long header may split one word, or even one multi-byte character, across two
+ * encoded words, so a run of same-charset words is joined as bytes before it is decoded.
+ */
 function decodeEncodedWords(value: string): string {
-	return value.replace(/=\?([^?]+)\?([bq])\?([^?]*)\?=/gi, (match, charset: string, encoding: string, text: string) => {
+	return value.replace(/=\?[^?]+\?[bq]\?[^?]*\?=(?:[ \t]+=\?[^?]+\?[bq]\?[^?]*\?=)*/gi, (run: string) => {
 		try {
-			const binary = encoding.toLowerCase() === "b"
-				? atob(text)
-				: text.replace(/_/g, " ").replace(/=([0-9a-f]{2})/gi, (_, hex: string) => String.fromCharCode(parseInt(hex, 16)));
-			return new TextDecoder(charset).decode(Uint8Array.from(binary, (char) => char.charCodeAt(0)));
+			let out = "";
+			let charset = "";
+			let bytes: number[] = [];
+			const flush = () => {
+				if (bytes.length) out += new TextDecoder(charset).decode(Uint8Array.from(bytes));
+				bytes = [];
+			};
+			for (const [, wordCharset, encoding, text] of run.matchAll(ENCODED_WORD)) {
+				const normalized = wordCharset.toLowerCase().split("*")[0];
+				if (normalized !== charset) {
+					flush();
+					charset = normalized;
+				}
+				bytes.push(...encodedWordBytes(encoding, text));
+			}
+			flush();
+			return out;
 		} catch {
-			return match;
+			return run;
 		}
 	});
 }

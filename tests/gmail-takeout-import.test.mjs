@@ -53,6 +53,22 @@ test("labels are parsed, including quoted, folded and encoded ones", () => {
 	assert.deepEqual(parseGmailLabels(latin1("Subject: none\r\n\r\nX-Gmail-Labels: Inbox")), []);
 });
 
+test("Arabic Gmail exports: split encoded words decode without stray spaces and system labels map to sections", () => {
+	// Exactly as Gmail writes it: one label list split across two folded base64 encoded words.
+	const header = "X-Gmail-Labels: =?UTF-8?B?2KfZhNio2LHZitivINin2YTZiNin2LHYryzYqtmFINin2YTZgQ==?=\r\n =?UTF-8?B?2KrYrSzYp9mE2YHYptipICIi2KrYrdiv2YrYq9in2KoiIg==?=\r\nSubject: x\r\n\r\nbody";
+	const labels = parseGmailLabels(new TextEncoder().encode(header));
+	assert.deepEqual(labels, ["البريد الوارد", "تم الفتح", "الفئة تحديثات"]);
+	assert.deepEqual(mapGmailLabels(labels), { destination: { type: "system", section: "inbox" }, read: true, starred: false });
+	assert.deepEqual(mapGmailLabels(["تم الإرسال", "مهم"]).destination, { type: "system", section: "sent" });
+	assert.deepEqual(mapGmailLabels(["الرسائل غير المرغوب فيها"]).destination, { type: "system", section: "spam" });
+	assert.deepEqual(mapGmailLabels(["المهملات", "البريد الوارد"]).destination, { type: "system", section: "trash" });
+	assert.deepEqual(mapGmailLabels(["مسودّات"]).destination, { type: "system", section: "drafts" });
+	assert.equal(mapGmailLabels(["البريد الوارد", "غير مقروءة"]).read, false);
+	// Archived, category and IMAP bookkeeping labels are not folders; a user label still is.
+	assert.deepEqual(mapGmailLabels(["الرسائل المؤرشفة", "الفئة اجتماعية", "IMAP_Forwarded"]).destination, { type: "system", section: "archived" });
+	assert.deepEqual(mapGmailLabels(["فئة الفواتير", "الفئة شخصية"]).destination, { type: "folder", name: "فئة الفواتير" });
+});
+
 test("labels map to sections, folders and read state", () => {
 	assert.deepEqual(mapGmailLabels(["Inbox", "Unread", "Newton"]), { destination: { type: "system", section: "inbox" }, read: false, starred: false });
 	assert.deepEqual(mapGmailLabels(["Sent", "Inbox"]).destination, { type: "system", section: "sent" });
