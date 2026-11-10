@@ -7,7 +7,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
 	applyDatabaseMigrations,
-	getApplicationUpdateStatus,
 	getMigrationStatus,
 	triggerApplicationUpdate,
 } from "./admin-update-card-utils";
@@ -20,7 +19,7 @@ export function AdminUpdateCard() {
 	const [error, setError] = useState("");
 	const [migrationError, setMigrationError] = useState("");
 	const [migrationStatus, setMigrationStatus] = useState<MigrationStatusResponse>();
-	const [isChecking, setIsChecking] = useState(true);
+	const isChecking = false;
 	const [isCheckingMigrations, setIsCheckingMigrations] = useState(true);
 	const [isPending, setIsPending] = useState(false);
 	const [isMigrating, setIsMigrating] = useState(false);
@@ -28,19 +27,7 @@ export function AdminUpdateCard() {
 	useEffect(() => {
 		let isActive = true;
 
-		getApplicationUpdateStatus()
-			.then((updateStatus) => {
-				if (isActive) setStatus(updateStatus);
-			})
-			.catch((statusError) => {
-				if (isActive) {
-					setError(statusError instanceof Error ? statusError.message : t("update.checkFailed"));
-				}
-			})
-			.finally(() => {
-				if (isActive) setIsChecking(false);
-			});
-
+		// Version checks against GitHub are disabled; only the local database status is read.
 		getMigrationStatus()
 			.then((databaseStatus) => {
 				if (isActive) setMigrationStatus(databaseStatus);

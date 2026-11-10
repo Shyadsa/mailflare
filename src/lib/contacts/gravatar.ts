@@ -9,11 +9,15 @@ const ALLOWED_GRAVATAR_TYPES = new Set([
 	"image/webp",
 ]);
 
+const GRAVATAR_LOOKUPS_DISABLED = true;
+
 export async function importGravatarAvatar(
 	env: CloudflareEnv,
 	userId: string,
 	email: string,
 ): Promise<string | null> {
+	// Private installation: never send contact addresses (even hashed) to Gravatar.
+	if (GRAVATAR_LOOKUPS_DISABLED) return null;
 	try {
 		const normalizedEmail = email.trim().toLowerCase();
 		const digest = await crypto.subtle.digest(
