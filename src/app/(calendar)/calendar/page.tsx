@@ -388,7 +388,7 @@ export default function CalendarPage() {
   const activeEventId = draggedEvent?.id ?? resizingEvent?.id ?? null;
 
   return (
-    <div className={clsx("flex h-full min-h-0 flex-col bg-[#f6f8fc] pl-3 max-md:pl-0 lg:flex-row transition-[gap] duration-200 ease-in-out motion-reduce:transition-none", minimal ? "gap-0" : "gap-3")}>
+    <div className={clsx("flex h-full min-h-0 flex-col bg-[#f6f8fc] ps-3 max-md:ps-0 lg:flex-row transition-[gap] duration-200 ease-in-out motion-reduce:transition-none", minimal ? "gap-0" : "gap-3")}>
       <Toaster position="bottom-left" />
       <h1 className="sr-only">{t("account.calendar")}</h1>
       {loading && <RouteLoadingBarPortal />}
@@ -460,13 +460,13 @@ export default function CalendarPage() {
               </DropdownMenu.Portal>
             </DropdownMenu.Root>
             <div className="relative max-md:hidden">
-              <select value={view} onChange={(event) => setView(event.target.value as CalendarView)} aria-label={t("calendar.view")} className="h-10 appearance-none rounded-full border-0 bg-white pl-4 pr-10 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
+              <select value={view} onChange={(event) => setView(event.target.value as CalendarView)} aria-label={t("calendar.view")} className="h-10 appearance-none rounded-full border-0 bg-white ps-4 pe-10 text-sm font-medium text-neutral-700 hover:bg-neutral-50">
                 <option value="week">{t("calendar.week")}</option>
                 <option value="day">{t("calendar.day")}</option>
               </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-600" />
+              <ChevronDown className="pointer-events-none absolute end-3 top-1/2 h-5 w-5 -translate-y-1/2 text-neutral-600" />
             </div>
-            <Button disabled={pendingAction !== null} onClick={() => openNewEvent()} className={clsx("ml-1 max-md:ml-0 h-10 rounded-full bg-blue-600 px-4 text-white hover:bg-blue-500", mobilePrimaryActionClass)}><Plus className="h-5 w-5" />{t("calendar.newEvent")}</Button>
+            <Button disabled={pendingAction !== null} onClick={() => openNewEvent()} className={clsx("ms-1 max-md:ms-0 h-10 rounded-full bg-blue-600 px-4 text-white hover:bg-blue-500", mobilePrimaryActionClass)}><Plus className="h-5 w-5" />{t("calendar.newEvent")}</Button>
           </div>
         </div>,
         headerTarget,
@@ -479,7 +479,7 @@ export default function CalendarPage() {
             <div className="sticky top-0 z-30 grid h-14 border-b border-neutral-200 bg-white" style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(0, 1fr))` }}>
               <div />
               {days.map((day) => (
-                <div key={dateKey(day)} className={`border-l border-neutral-100 px-3 py-2 text-xs ${dateKey(day) === dateKey(today) ? "text-blue-700" : "text-neutral-700"}`}>
+                <div key={dateKey(day)} className={`border-s border-neutral-100 px-3 py-2 text-xs ${dateKey(day) === dateKey(today) ? "text-blue-700" : "text-neutral-700"}`}>
                   {formatUserDate(day, { weekday: "short" })}
                   <span className="text-2xl block font-medium">
                     {formatUserDate(day, { day: "numeric" })}
@@ -490,11 +490,11 @@ export default function CalendarPage() {
           <div className="grid" style={{ gridTemplateColumns: `64px repeat(${days.length}, minmax(0, 1fr))`, height: (CALENDAR_END_HOUR - CALENDAR_START_HOUR) * CALENDAR_HOUR_HEIGHT }}>
             <div className="relative">
               {Array.from({ length: CALENDAR_END_HOUR - CALENDAR_START_HOUR }, (_, index) => (
-                <span key={index} className={`absolute right-3 text-xs text-neutral-700 ${index === 0 ? "" : "-translate-y-1/2"}`} style={{ top: index * CALENDAR_HOUR_HEIGHT }}>{index % 2 == 0 ? null : formatHour(CALENDAR_START_HOUR + index)}</span>
+                <span key={index} className={`absolute end-3 text-xs text-neutral-700 ${index === 0 ? "" : "-translate-y-1/2"}`} style={{ top: index * CALENDAR_HOUR_HEIGHT }}>{index % 2 == 0 ? null : formatHour(CALENDAR_START_HOUR + index)}</span>
               ))}
             </div>
             {days.map((day) => (
-              <div key={dateKey(day)} className={"relative border-l border-neutral-100"}
+              <div key={dateKey(day)} className={"relative border-s border-neutral-100"}
                 onDragOver={(event) => {
                   if (!draggedEvent) return;
                   event.preventDefault();
@@ -514,9 +514,9 @@ export default function CalendarPage() {
                   onEdit={onEditEvent} onDragStart={onEventDragStart} onDragEnd={onEventDragEnd}
                   onResizeStart={onResizeStart} onResizeMove={onResizeMove} onResizeEnd={onResizeEnd} onResizeCancel={onResizeCancel} />
                 {dragPreview && previewEvent && previewPosition && dateKey(dragPreview.day) === dateKey(day) && (
-                  <div className={`pointer-events-none absolute left-1 right-1 z-20 rounded-lg border-2 border-dashed border-white ${new Date(previewEvent.endsAt).getTime() <= currentTime ? PAST_EVENT_COLOR_CLASSES[normalizeCalendarColor(previewEvent.color)] : EVENT_COLOR_CLASSES[normalizeCalendarColor(previewEvent.color)]}`}
+                  <div className={`pointer-events-none absolute start-1 end-1 z-20 rounded-lg border-2 border-dashed border-white ${new Date(previewEvent.endsAt).getTime() <= currentTime ? PAST_EVENT_COLOR_CLASSES[normalizeCalendarColor(previewEvent.color)] : EVENT_COLOR_CLASSES[normalizeCalendarColor(previewEvent.color)]}`}
                     style={{ top: previewPosition.top, height: previewPosition.height }}>
-                    <span className="absolute left-1 top-0 z-10 whitespace-nowrap rounded bg-neutral-900 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                    <span className="absolute start-1 top-0 z-10 whitespace-nowrap rounded bg-neutral-900 px-1.5 py-0.5 text-[10px] font-medium text-white">
                       {formatEventRange(previewEvent)}
                     </span>
                     {previewPosition.height >= 50 && <span className="block truncate px-2 pt-6 text-[12px] font-semibold">{previewEvent.title}</span>}
@@ -525,7 +525,7 @@ export default function CalendarPage() {
                 {dateKey(day) === dateKey(now) && (
                   <div aria-hidden="true" className="pointer-events-none absolute inset-x-0 z-30" style={{ top: currentTimePosition(now) }}>
                     <div className="h-1 w-full bg-blue-600" />
-                    <div className="absolute -left-2.5 -top-2 h-5 w-5 rounded-full bg-blue-600" />
+                    <div className="absolute -start-2.5 -top-2 h-5 w-5 rounded-full bg-blue-600" />
                   </div>
                 )}
               </div>
@@ -557,13 +557,13 @@ export default function CalendarPage() {
                 }}>
                   <div className="grid gap-1 sm:grid-cols-[minmax(0,1fr)_1px_minmax(0,1fr)] sm:gap-2">
                     <label className="relative block min-w-0 text-sm">
-                      <span className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2 font-medium text-neutral-500">{t("calendar.from")}</span>
-                      <Input type="datetime-local" value={startsAt} onFocus={() => setDurationOptionsOpen(true)} onChange={(event) => setStartsAt(event.target.value)} aria-label={t("calendar.fromLabel")} className={`${eventFieldClass} pl-14`} />
+                      <span className="pointer-events-none absolute start-2 top-1/2 z-10 -translate-y-1/2 font-medium text-neutral-500">{t("calendar.from")}</span>
+                      <Input type="datetime-local" value={startsAt} onFocus={() => setDurationOptionsOpen(true)} onChange={(event) => setStartsAt(event.target.value)} aria-label={t("calendar.fromLabel")} className={`${eventFieldClass} ps-14`} />
                     </label>
                     <div aria-hidden="true" className="h-px w-full self-center bg-neutral-200 sm:h-6 sm:w-px" />
                     <label className="relative block min-w-0 text-sm">
-                      <span className="pointer-events-none absolute left-2 top-1/2 z-10 -translate-y-1/2 font-medium text-neutral-500">{t("calendar.to")}</span>
-                      <Input type="datetime-local" value={endsAt} onFocus={() => setDurationOptionsOpen(true)} onChange={(event) => setEndsAt(event.target.value)} aria-label={t("calendar.toLabel")} className={`${eventFieldClass} pl-14`} />
+                      <span className="pointer-events-none absolute start-2 top-1/2 z-10 -translate-y-1/2 font-medium text-neutral-500">{t("calendar.to")}</span>
+                      <Input type="datetime-local" value={endsAt} onFocus={() => setDurationOptionsOpen(true)} onChange={(event) => setEndsAt(event.target.value)} aria-label={t("calendar.toLabel")} className={`${eventFieldClass} ps-14`} />
                     </label>
                   </div>
                   {durationOptionsOpen && <div className="flex flex-wrap gap-1 pt-1" aria-label={t("calendar.setDuration")}>
@@ -579,13 +579,13 @@ export default function CalendarPage() {
                 <Bell aria-hidden="true" className="mt-2 h-5 w-5 text-neutral-600" />
                 <div className="relative min-w-0">
                   <select value={reminderMinutes ?? ""} onChange={(event) => setReminderMinutes(event.target.value === "" ? null : Number(event.target.value))} aria-label={t("calendar.reminder")}
-                    className="h-9 w-full appearance-none rounded-md border border-transparent bg-transparent pl-2 pr-8 text-sm text-neutral-700 outline-none hover:bg-neutral-50 focus:border-blue-600 focus:bg-white">
+                    className="h-9 w-full appearance-none rounded-md border border-transparent bg-transparent ps-2 pe-8 text-sm text-neutral-700 outline-none hover:bg-neutral-50 focus:border-blue-600 focus:bg-white">
                     <option value="">{t("calendar.reminder.none")}</option>
                     {REMINDER_MINUTE_OPTIONS.map((minutes) => (
                       <option key={minutes} value={minutes}>{t(`calendar.reminder.m${minutes}` as TranslationKey)}</option>
                     ))}
                   </select>
-                  <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                  <ChevronDown aria-hidden="true" className="pointer-events-none absolute end-2 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                 </div>
               </div>
               <div className="grid grid-cols-[24px_minmax(0,1fr)] items-start gap-3">
@@ -593,14 +593,14 @@ export default function CalendarPage() {
                 <div className="min-w-0">
                   <div className="relative">
                     <select value={repeat} onChange={(event) => setRepeat(event.target.value as CalendarRepeat)} aria-label={t("calendar.repeat")}
-                    className="h-9 w-full appearance-none rounded-md border border-transparent bg-transparent pl-2 pr-8 text-sm text-neutral-700 outline-none hover:bg-neutral-50 focus:border-blue-600 focus:bg-white">
+                    className="h-9 w-full appearance-none rounded-md border border-transparent bg-transparent ps-2 pe-8 text-sm text-neutral-700 outline-none hover:bg-neutral-50 focus:border-blue-600 focus:bg-white">
                     <option value="none">{t("calendar.repeat.none")}</option>
                     <option value="daily">{t("calendar.repeat.daily")}</option>
                     <option value="weekly">{t("calendar.repeat.weekly")}</option>
                     <option value="monthly">{t("calendar.repeat.monthly")}</option>
                     <option value="weekdays">{t("calendar.repeat.weekdays")}</option>
                     </select>
-                    <ChevronDown aria-hidden="true" className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
+                    <ChevronDown aria-hidden="true" className="pointer-events-none absolute end-2 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-500" />
                   </div>
                   {repeat === "weekdays" && (
                     <div role="group" aria-label={t("calendar.repeatOnWeekdays")} className="flex flex-wrap gap-1.5 px-2 pt-1">

@@ -50,7 +50,7 @@ function CalendarReview() {
 		{done && <p className="mt-4">{t("agent.calendarReview.done")}</p>}
 		{preview && !done && <>
 			<p className="mt-4">{preview.action === "delete" ? t("agent.calendarReview.deleteIntro") : t("agent.calendarReview.updateIntro")}</p>
-			<ul className="mt-2 list-disc pl-6">
+			<ul className="mt-2 list-disc ps-6">
 				{preview.events.map((event) => <li key={event.id}>{event.title} · {new Date(event.startsAt).toLocaleString()}{event.repeats ? ` · ${t("agent.calendarReview.repeats")}` : ""}</li>)}
 			</ul>
 			{preview.changes && <pre className="mt-4 overflow-x-auto rounded bg-muted p-3 text-xs">{JSON.stringify(preview.changes, null, 2)}</pre>}

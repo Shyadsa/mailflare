@@ -135,11 +135,11 @@ function MessageListRow({
 		const compactRow = (
 			<div
 				role={swipeable ? undefined : "listitem"}
-				className={`group grid grid-cols-[20px_minmax(0,1fr)] gap-3 border-l-2 px-4 py-3 transition-colors ${active || opening
-					? "border-l-blue-600 bg-blue-50"
+				className={`group grid grid-cols-[20px_minmax(0,1fr)] gap-3 border-s-2 px-4 py-3 transition-colors ${active || opening
+					? "border-s-blue-600 bg-blue-50"
 					: selected
-						? "border-l-transparent bg-neutral-50"
-						: "border-l-transparent hover:bg-neutral-50"
+						? "border-s-transparent bg-neutral-50"
+						: "border-s-transparent hover:bg-neutral-50"
 					} ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
 				draggable={draggable}
 				onDragStart={(event) => {
@@ -170,7 +170,7 @@ function MessageListRow({
 							{party}
 
 							{(message.threadCount ?? 1) > 1 && (
-								<span className="ml-2 text-xs font-normal text-neutral-500">{message.threadCount}</span>
+								<span className="ms-2 text-xs font-normal text-neutral-500">{message.threadCount}</span>
 							)}
 						</span>
 						<span className={clsx(unread ?"font-medium":"text-neutral-500","shrink-0 text-[11px]")}>
@@ -179,12 +179,13 @@ function MessageListRow({
 						</span>
 					</span>
 					<span
-						className={`mt-1 block truncate text-sm ${unread ? "font-semibold text-neutral-900" : "text-neutral-700"
+						dir="auto"
+						className={`mt-1 block truncate text-start text-sm ${unread ? "font-semibold text-neutral-900" : "text-neutral-700"
 							}`}
 					>
 						{message.subject ?? t("list.noSubject")}
 					</span>
-					<span className="mt-0.5 block truncate text-xs leading-5 text-neutral-500">
+					<span dir="auto" className="mt-0.5 block truncate text-start text-xs leading-5 text-neutral-500">
 						{preview}
 					</span>
 				</Link>
@@ -213,7 +214,7 @@ function MessageListRow({
 	}
 
 	const className =
-		`group relative grid min-h-12 w-full grid-cols-[24px_32px_minmax(160px,80px)_1fr_auto] items-center gap-3 px-6 text-left text-sm hover:z-10 hover:bg-[#f2f6fc] hover:shadow-sm has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-inset has-[a:focus-visible]:ring-blue-600 ${active || selected || opening ? "bg-blue-50" : ""
+		`group relative grid min-h-12 w-full grid-cols-[24px_32px_minmax(160px,80px)_1fr_auto] items-center gap-3 px-6 text-start text-sm hover:z-10 hover:bg-[#f2f6fc] hover:shadow-sm has-[a:focus-visible]:ring-2 has-[a:focus-visible]:ring-inset has-[a:focus-visible]:ring-blue-600 ${active || selected || opening ? "bg-blue-50" : ""
 		} ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`;
 	const content = (
 		<>
@@ -242,10 +243,10 @@ function MessageListRow({
 				{party}
 
 				{(message.threadCount ?? 1) > 1 && (
-					<span className="ml-2 text-xs text-neutral-500">{message.threadCount}</span>
+					<span className="ms-2 text-xs text-neutral-500">{message.threadCount}</span>
 				)}
 			</span>
-			<span className="truncate text-neutral-700">
+			<span dir="auto" className="truncate text-start text-neutral-700">
 				<Link
 					href={href}
 					onClick={config.folder === "drafts" ? undefined : onMessageNavigate}
@@ -265,7 +266,7 @@ function MessageListRow({
 			</span>
 			<time
 				dateTime={message.createdAt}
-				className={`min-w-[96px] whitespace-nowrap text-right text-xs group-hover:opacity-0 ${unread ? "font-semibold text-neutral-800" : "text-neutral-500"
+				className={`min-w-[96px] whitespace-nowrap text-end text-xs group-hover:opacity-0 ${unread ? "font-semibold text-neutral-800" : "text-neutral-500"
 					}`}
 			>
 				<OpenedIndicator count={message.openCount} />
@@ -553,7 +554,7 @@ export function MessageFolderPage({
 						/>
 					) : (
 						(compact || isMobile) && (
-							<p aria-hidden="true" className="truncate font-semibold text-neutral-900 pl-1">{title}</p>
+							<p aria-hidden="true" className="truncate font-semibold text-neutral-900 ps-1">{title}</p>
 						)
 					)}
 				</div>

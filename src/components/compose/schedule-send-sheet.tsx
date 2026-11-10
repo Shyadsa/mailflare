@@ -18,7 +18,7 @@ const PAGES: Page[] = ["root", "date", "templates"];
 
 const pageClass = "flex max-h-[calc(85dvh-3.5rem)] w-full shrink-0 flex-col px-2 pb-3";
 
-const rowClass = "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-left text-base text-neutral-900 active:bg-neutral-100";
+const rowClass = "flex min-h-12 w-full items-center gap-3 rounded-xl px-3 text-start text-base text-neutral-900 active:bg-neutral-100";
 
 /** Phone version of the Send options menu: a bottom sheet whose pages slide in (root → date, templates). */
 export function ScheduleSendSheet({ open, onOpenChange, value, onChange, allowClear = true, onApplyTemplate, onNewTemplate }: ScheduleSendSheetProps) {

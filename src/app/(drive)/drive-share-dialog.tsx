@@ -70,7 +70,7 @@ export function DriveShareDialog({ item, onClose, onChanged }: { item: DriveItem
 	return (
 		<Dialog open={!!item} onOpenChange={(open) => { if (!open) onClose(); }}>
 			<DialogContent className="max-h-[calc(100vh-4rem)] overflow-y-auto">
-				<DialogHeader><DialogTitle className="pr-6 truncate">{t("drive.shareTitle", { name: item?.name ?? "" })}</DialogTitle></DialogHeader>
+				<DialogHeader><DialogTitle className="pe-6 truncate">{t("drive.shareTitle", { name: item?.name ?? "" })}</DialogTitle></DialogHeader>
 				<form onSubmit={addPerson} className="flex gap-2">
 					<Input type="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder={t("drive.shareEmail")} aria-label={t("drive.shareEmail")} />
 					<select value={role} onChange={(event) => setRole(event.target.value as DriveShareRole)} className={selectClass} aria-label={t("drive.peopleWithAccess")}>

@@ -29,8 +29,8 @@ export function TemplateMenu({ onApply, onNew }: TemplateMenuProps) {
 	return (
 		<DropdownMenu.Sub>
 				<DropdownMenu.SubTrigger className={`${itemClass} justify-between data-[state=open]:bg-neutral-100`}>
-					<span className="flex items-center"><FileText className="mr-2 h-4 w-4" />{t("template.menu")}</span>
-					<ChevronRight className="ml-4 h-4 w-4 text-neutral-400" />
+					<span className="flex items-center"><FileText className="me-2 h-4 w-4" />{t("template.menu")}</span>
+					<ChevronRight className="ms-4 h-4 w-4 text-neutral-400" />
 				</DropdownMenu.SubTrigger>
 				<DropdownMenu.Portal>
 					<DropdownMenu.SubContent
@@ -60,7 +60,7 @@ export function TemplateMenu({ onApply, onNew }: TemplateMenuProps) {
 						</div>
 						<DropdownMenu.Separator className="my-1 h-px bg-neutral-100" />
 						<DropdownMenu.Item onSelect={onNew} className={`${itemClass} text-blue-600`}>
-							<Plus className="mr-2 h-4 w-4" />{t("template.new")}
+							<Plus className="me-2 h-4 w-4" />{t("template.new")}
 						</DropdownMenu.Item>
 					</DropdownMenu.SubContent>
 				</DropdownMenu.Portal>

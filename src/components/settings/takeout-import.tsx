@@ -167,7 +167,7 @@ export function TakeoutImport() {
 					multiple
 					disabled={running}
 					onChange={(event) => setFiles(Array.from(event.target.files ?? []))}
-					className="block w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm shadow-sm shadow-neutral-200/50 file:mr-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium"
+					className="block w-full rounded-md border border-neutral-200 bg-white px-3 py-1 text-sm shadow-sm shadow-neutral-200/50 file:me-3 file:rounded-md file:border-0 file:bg-neutral-100 file:px-3 file:py-1.5 file:text-sm file:font-medium"
 				/>
 				<p className="text-xs leading-5 text-neutral-500">{t("importPage.takeoutHint")}</p>
 			</div>
@@ -259,7 +259,7 @@ export function TakeoutImport() {
 					{result.summary.failed > 0 && (
 						<div className="text-xs text-red-700">
 							<p>{t("importPage.takeoutFailed", { count: result.summary.failed })}</p>
-							<ul className="mt-1 list-disc space-y-0.5 pl-5">
+							<ul className="mt-1 list-disc space-y-0.5 ps-5">
 								{result.summary.errors.slice(0, 5).map((item) => (
 									<li key={item}>{item}</li>
 								))}

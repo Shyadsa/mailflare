@@ -161,6 +161,15 @@ function createIcon(icon: IconSvgElement, displayName: string): LucideIcon {
 	return Icon;
 }
 
+// Icons that point along the reading direction are mirrored in right-to-left layouts.
+function createDirectionalIcon(icon: IconSvgElement, displayName: string): LucideIcon {
+	const Icon = forwardRef<SVGSVGElement, IconProps>(({ className, ...props }, ref) => (
+		<HugeiconsIcon ref={ref} icon={icon} strokeWidth={2} className={className ? `${className} rtl:-scale-x-100` : "rtl:-scale-x-100"} {...props} />
+	));
+	Icon.displayName = displayName;
+	return Icon;
+}
+
 export const Activity = createIcon(HugeActivityIcon, "Activity");
 export const AlertCircle = createIcon(HugeAlertCircleIcon, "AlertCircle");
 export const AlertTriangle = createIcon(HugeTriangleAlertIcon, "AlertTriangle");
@@ -169,8 +178,8 @@ export const Archive = createIcon(HugeArchiveIcon, "Archive");
 export const ArchiveRestore = createIcon(HugeArchiveRestoreIcon, "ArchiveRestore");
 export const ArrowDown = createIcon(HugeArrowDownIcon, "ArrowDown");
 export const ArrowDownToLine = createIcon(HugeArrowDownToLineIcon, "ArrowDownToLine");
-export const ArrowLeft = createIcon(HugeArrowLeftIcon, "ArrowLeft");
-export const ArrowRight = createIcon(HugeArrowRightIcon, "ArrowRight");
+export const ArrowLeft = createDirectionalIcon(HugeArrowLeftIcon, "ArrowLeft");
+export const ArrowRight = createDirectionalIcon(HugeArrowRightIcon, "ArrowRight");
 export const ArrowUp = createIcon(HugeArrowUpIcon, "ArrowUp");
 export const AtSign = createIcon(HugeAtSignIcon, "AtSign");
 export const BadgeDollarSign = createIcon(HugeBadgeDollarSignIcon, "BadgeDollarSign");
@@ -189,8 +198,8 @@ export const Check = createIcon(HugeCheckIcon, "Check");
 export const CheckCircle2 = createIcon(HugeCheckmarkCircle02Icon, "CheckCircle2");
 export const CheckSquare2 = createIcon(HugeCheckmarkSquare02Icon, "CheckSquare2");
 export const ChevronDown = createIcon(HugeChevronDownIcon, "ChevronDown");
-export const ChevronLeft = createIcon(HugeChevronLeftIcon, "ChevronLeft");
-export const ChevronRight = createIcon(HugeChevronRightIcon, "ChevronRight");
+export const ChevronLeft = createDirectionalIcon(HugeChevronLeftIcon, "ChevronLeft");
+export const ChevronRight = createDirectionalIcon(HugeChevronRightIcon, "ChevronRight");
 export const ChevronUp = createIcon(HugeChevronUpIcon, "ChevronUp");
 export const ChevronsUpDown = createIcon(HugeUnfoldMoreIcon, "ChevronsUpDown");
 export const CircleX = createIcon(HugeCircleXIcon, "CircleX");
@@ -199,8 +208,8 @@ export const Clock3 = createIcon(HugeClock03Icon, "Clock3");
 export const Cloud = createIcon(HugeCloudIcon, "Cloud");
 export const Columns2 = createIcon(HugeLayout2ColumnIcon, "Columns2");
 export const Copy = createIcon(HugeCopyIcon, "Copy");
-export const CornerDownLeft = createIcon(HugeCornerDownLeftIcon, "CornerDownLeft");
-export const CornerDownRight = createIcon(HugeCornerDownRightIcon, "CornerDownRight");
+export const CornerDownLeft = createDirectionalIcon(HugeCornerDownLeftIcon, "CornerDownLeft");
+export const CornerDownRight = createDirectionalIcon(HugeCornerDownRightIcon, "CornerDownRight");
 export const Database = createIcon(HugeDatabaseIcon, "Database");
 export const DatabaseBackup = createIcon(HugeDatabaseBackupIcon, "DatabaseBackup");
 export const Download = createIcon(HugeDownloadIcon, "Download");
@@ -223,7 +232,7 @@ export const Folder = createIcon(HugeFolderIcon, "Folder");
 export const FolderInput = createIcon(HugeFolderInputIcon, "FolderInput");
 export const FolderPlus = createIcon(HugeFolderPlusIcon, "FolderPlus");
 export const Forward = function (props) {
-	return createElement(createIcon(HugeReplyIcon, "Forward"), {...props, className: `${props.className} scale-x-[-1]`});
+	return createElement(createIcon(HugeReplyIcon, "Forward"), {...props, className: `${props.className ?? ""} scale-x-[-1] rtl:scale-x-100`});
 }
 export const Globe2 = createIcon(HugeGlobeIcon, "Globe2");
 export const HardDrive = createIcon(HugeHardDriveIcon, "HardDrive");
@@ -242,8 +251,8 @@ export const ListFilter = createIcon(HugeListFilterIcon, "ListFilter");
 export const ListOrdered = createIcon(HugeListOrderedIcon, "ListOrdered");
 export const Loader2 = createIcon(HugeLoading03Icon, "Loader2");
 export const LockKeyhole = createIcon(HugeLockKeyholeIcon, "LockKeyhole");
-export const LogIn = createIcon(HugeLogInIcon, "LogIn");
-export const LogOut = createIcon(HugeLogOutIcon, "LogOut");
+export const LogIn = createDirectionalIcon(HugeLogInIcon, "LogIn");
+export const LogOut = createDirectionalIcon(HugeLogOutIcon, "LogOut");
 export const Mail = createIcon(HugeMailIcon, "Mail");
 export const MailCheck = createIcon(HugeMailCheckIcon, "MailCheck");
 export const MailOpen = createIcon(HugeMailOpenIcon, "MailOpen");
@@ -269,14 +278,14 @@ export const Quote = createIcon(HugeQuoteIcon, "Quote");
 export const RefreshCw = createIcon(HugeRefreshCwIcon, "RefreshCw");
 export const RemoveFormatting = createIcon(HugeRemoveFormattingIcon, "RemoveFormatting");
 export const Repeat2 = createIcon(HugeRepeatIcon, "Repeat2");
-export const Reply = createIcon(HugeReplyIcon, "Reply");
-export const ReplyAll = createIcon(HugeReplyAllIcon, "ReplyAll");
+export const Reply = createDirectionalIcon(HugeReplyIcon, "Reply");
+export const ReplyAll = createDirectionalIcon(HugeReplyAllIcon, "ReplyAll");
 export const RotateCcw = createIcon(HugeRotateCcwIcon, "RotateCcw");
 export const RotateCw = createIcon(HugeRotateCwIcon, "RotateCw");
 export const Route = createIcon(HugeRouteIcon, "Route");
 export const Save = createIcon(HugeSaveIcon, "Save");
 export const Search = createIcon(HugeSearchIcon, "Search");
-export const Send = createIcon(HugeSendIcon, "Send");
+export const Send = createDirectionalIcon(HugeSendIcon, "Send");
 export const Server = createIcon(HugeServerIcon, "Server");
 export const Settings = createIcon(HugeSettingsIcon, "Settings");
 export const Settings2 = createIcon(HugeSettings02Icon, "Settings2");
@@ -293,7 +302,7 @@ export const Strikethrough = createIcon(HugeStrikethroughIcon, "Strikethrough");
 export const TextAlignJustify = createIcon(HugeTextAlignJustifyIcon, "TextAlignJustify");
 export const Trash2 = createIcon(HugeDelete02Icon, "Trash2");
 export const Underline = createIcon(HugeUnderlineIcon, "Underline");
-export const Undo2 = createIcon(HugeUndo02Icon, "Undo2");
+export const Undo2 = createDirectionalIcon(HugeUndo02Icon, "Undo2");
 export const Upload = createIcon(HugeUploadIcon, "Upload");
 export const UploadCloud = createIcon(HugeCloudUploadIcon, "UploadCloud");
 export const User = createIcon(HugeUserIcon, "User");

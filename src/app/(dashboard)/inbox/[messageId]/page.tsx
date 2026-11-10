@@ -271,7 +271,7 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
     </div>
 
     <div ref={scrollRef} onScroll={handleScroll} className="h-full overflow-y-auto overscroll-contain scrollbar-gutter-stable flex-1 min-h-0">
-      <h1 className={clsx(!isAnyPanelVisible ? "sm:pl-16" : "sm:pl-10", "px-4 pb-2 pt-2 text-2xl text-neutral-900 sm:pr-6")} title={message.subject ?? t("list.noSubject")}>
+      <h1 className={clsx(!isAnyPanelVisible ? "sm:ps-16" : "sm:ps-10", "px-4 pb-2 pt-2 text-start text-2xl text-neutral-900 sm:pe-6")} dir="auto" title={message.subject ?? t("list.noSubject")}>
         {message.subject ?? t("list.noSubject")}
       </h1>
       {/* <div className="px-6">
@@ -297,9 +297,9 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
         expandedAll={threadExpanded}
         onExpandedAllChange={setThreadExpanded}
       />
-      <article className={clsx("py-4 sm:px-6", !isAnyPanelVisible && "sm:pl-12")}>
+      <article className={clsx("py-4 sm:px-6", !isAnyPanelVisible && "sm:ps-12")}>
         <div className="w-full">
-          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 px-4 pb-5 sm:px-0 sm:pl-4">
+          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-1 px-4 pb-5 sm:px-0 sm:ps-4">
             <div className="flex min-w-0 items-start gap-3">
               <ContactAvatar
                 mailboxId={message.mailboxId}
@@ -365,7 +365,7 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
               />
             </div>
           </div>
-          <div className="mb-4 px-4 sm:px-0 sm:pl-4 sm:pr-4">
+          <div className="mb-4 px-4 sm:px-0 sm:ps-4 sm:pe-4">
             <SenderCheckNotice
               message={message}
               detailsOpen={detailsOpen}
@@ -374,12 +374,12 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
             />
           </div>
           {detailsOpen && (
-            <div className="mb-4 px-4 sm:px-0 sm:pl-4 sm:pr-4">
+            <div className="mb-4 px-4 sm:px-0 sm:ps-4 sm:pe-4">
               <MessageDetailsPanel message={message} onClose={() => setDetailsOpen(false)} />
             </div>
           )}
-          {scheduledAt && <div className="px-4 sm:px-0 sm:pl-10"><ScheduledSendBanner messageId={message.id} scheduledAt={scheduledAt} onRescheduled={(next) => setData((current) => current ? { ...current, scheduledAt: next } : current)} /></div>}
-          <div className="prose max-w-none px-4 text-neutral-900 sm:px-0 sm:pl-16">
+          {scheduledAt && <div className="px-4 sm:px-0 sm:ps-10"><ScheduledSendBanner messageId={message.id} scheduledAt={scheduledAt} onRescheduled={(next) => setData((current) => current ? { ...current, scheduledAt: next } : current)} /></div>}
+          <div className="prose max-w-none px-4 text-neutral-900 sm:px-0 sm:ps-16">
             {bodyError ? (
               <div role="alert" className="not-prose rounded-lg border border-neutral-200 bg-neutral-50 p-4">
                 <p className="text-sm text-neutral-700">{t("source.loadFailed")}</p>
@@ -397,7 +397,7 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
             ) : htmlBody ? (
               <EmailHtmlRenderer key={message.id} className="mx-auto" html={htmlBody} autoAllowRemote={remote.autoAllow} onAllowRemote={remote.allowSender} />
             ) : (
-              <pre className="whitespace-pre-wrap text-sm text mx-auto">
+              <pre dir="auto" className="whitespace-pre-wrap text-sm text mx-auto">
                 {cloudAttachmentResult.content}
               </pre>
             )}
@@ -410,7 +410,7 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
             ))}
           </div>
           {cloudAttachmentResult.attachments.length > 0 && (
-            <section className="mt-8 border-t border-neutral-100 px-4 py-6 sm:px-0 sm:pl-16">
+            <section className="mt-8 border-t border-neutral-100 px-4 py-6 sm:px-0 sm:ps-16">
               <h2 className="mb-3 text-sm font-semibold text-neutral-900">
                 {t("message.cloudFiles", { count: cloudAttachmentResult.attachments.length })}
               </h2>
@@ -421,7 +421,7 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
                     href={attachment.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 text-left hover:border-blue-200 hover:bg-blue-50/40"
+                    className="flex items-center gap-3 rounded-lg border border-neutral-200 p-3 text-start hover:border-blue-200 hover:bg-blue-50/40"
                   >
                     <Cloud className="h-5 w-5 shrink-0 text-blue-600" />
                     <span className="min-w-0 flex-1">
@@ -440,7 +440,7 @@ function MessageDetailContent({ messageId }: { messageId: string }) {
             </section>
           )}
           {attachments.length > 0 && (
-            <section className="mt-8 border-t border-neutral-100 px-4 py-6 sm:px-0 sm:pl-16">
+            <section className="mt-8 border-t border-neutral-100 px-4 py-6 sm:px-0 sm:ps-16">
               <h2 className="mb-3 text-sm font-semibold text-neutral-900">
                 {t("message.attachments", { count: attachments.length })}
               </h2>

@@ -40,7 +40,7 @@ function InboxLabel({ mailbox }: { mailbox: MailboxOption }) {
 	return (
 		<>
 			<InboxAvatar mailbox={mailbox} />
-			<div className="min-w-0 flex-1 text-left">
+			<div className="min-w-0 flex-1 text-start">
 				<div className="flex items-center gap-1.5">
 					<p className="truncate text-sm font-semibold text-neutral-900">{getMailboxName(mailbox)}</p>
 					{mailbox.type === "shared" && (
@@ -81,7 +81,7 @@ export function InboxSwitcher() {
 			{open && (
 				<div
 					role="listbox"
-					className="absolute left-0 right-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-1 shadow-xl shadow-neutral-900/10"
+					className="absolute start-0 end-0 top-full z-50 mt-2 max-h-72 overflow-y-auto rounded-2xl border border-neutral-200 bg-white p-1 shadow-xl shadow-neutral-900/10"
 				>
 					{mailboxes.map((mailbox) => {
 						const selected = mailbox.id === selectedMailbox.id;

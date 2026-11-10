@@ -328,7 +328,7 @@ export function LoginClient({ adding = false }: { adding?: boolean }) {
           <summary className="cursor-pointer list-none text-xs font-medium text-neutral-500 underline decoration-neutral-300 underline-offset-2 hover:text-neutral-800 [&::-webkit-details-marker]:hidden">
             {t("passkey.cantUse")}
           </summary>
-          <p className="mt-2 rounded-2xl border border-neutral-100 bg-neutral-50/60 px-4 py-3 text-left text-xs leading-5 text-neutral-500">
+          <p className="mt-2 rounded-2xl border border-neutral-100 bg-neutral-50/60 px-4 py-3 text-start text-xs leading-5 text-neutral-500">
             {t("passkey.lostAllHint")}
           </p>
         </details>

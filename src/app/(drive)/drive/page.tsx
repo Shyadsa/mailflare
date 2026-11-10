@@ -281,8 +281,8 @@ export default function DrivePage() {
 				</div>
 				{view === "trash" && !folder && <p className="shrink-0 border-b border-neutral-200 bg-neutral-50 px-5 py-2 text-xs text-neutral-600">{t("drive.trashNotice", { days: 30 })}</p>}
 				<div style={gridStyle} className="grid shrink-0 grid-cols-[2rem_minmax(0,1fr)_2.5rem] items-center gap-x-4 border-b border-neutral-200 px-5 py-2 text-sm md:grid-cols-[var(--drive-columns)]">
-					<Checkbox ref={selectAllRef} checked={allSelected} onChange={() => setSelectedIds(allSelected ? new Set() : new Set(selectable.map((item) => item.id)))} disabled={selectable.length === 0} aria-label={t("drive.selectAll")} className="ml-1" />
-					<span className="min-w-0 pl-7">{headerButton("name", t("drive.name"))}</span>
+					<Checkbox ref={selectAllRef} checked={allSelected} onChange={() => setSelectedIds(allSelected ? new Set() : new Set(selectable.map((item) => item.id)))} disabled={selectable.length === 0} aria-label={t("drive.selectAll")} className="ms-1" />
+					<span className="min-w-0 ps-7">{headerButton("name", t("drive.name"))}</span>
 					<span className="relative hidden min-w-0 md:block">{headerButton("owner", attachmentsView ? t("drive.from") : t("drive.owner"))}<ColumnResizeHandle column="owner" width={columns.widths.owner} onResize={columns.resize} label={t("drive.owner")} /></span>
 					<span className="relative hidden min-w-0 md:block">{headerButton("updatedAt", t("drive.modified"))}<ColumnResizeHandle column="updatedAt" width={columns.widths.updatedAt} onResize={columns.resize} label={t("drive.modified")} /></span>
 					<span className="relative hidden min-w-0 md:block">{headerButton("size", t("drive.fileSize"))}<ColumnResizeHandle column="size" width={columns.widths.size} onResize={columns.resize} label={t("drive.fileSize")} /></span>
@@ -292,7 +292,7 @@ export default function DrivePage() {
 					{failed ? <p className="p-8 text-center text-sm text-neutral-500">{t("drive.loadFailed")}</p>
 						: loading ? Array.from({ length: 8 }, (_, index) => (
 							<div key={index} aria-hidden="true" style={gridStyle} className="grid grid-cols-[2rem_minmax(0,1fr)_2.5rem] items-center gap-x-4 px-3 py-3.5 md:grid-cols-[var(--drive-columns)]">
-								<Skeleton className="ml-1 h-4 w-4" />
+								<Skeleton className="ms-1 h-4 w-4" />
 								<span className="flex items-center gap-3"><Skeleton className="h-4 w-4 shrink-0" /><Skeleton className="h-4" style={{ width: `${45 + ((index * 17) % 40)}%` }} /></span>
 								<Skeleton className="hidden h-6 w-6 rounded-full md:block" />
 								<Skeleton className="hidden h-4 w-24 md:block" />
@@ -309,8 +309,8 @@ export default function DrivePage() {
 								: {};
 							return (
 								<div key={item.id} role="listitem" style={gridStyle} draggable={isDriveDraggable(item)} onDragStart={(event) => onItemDragStart(event, item)} onDragEnd={onItemDragEnd} {...dropTarget} className={clsx("group grid grid-cols-[2rem_minmax(0,1fr)_2.5rem] items-center gap-x-4 rounded-lg px-3 text-sm md:grid-cols-[var(--drive-columns)]", dropFolder === item.id ? "bg-blue-100 ring-2 ring-inset ring-blue-500" : selectedIds.has(item.id) ? "bg-blue-50" : "hover:bg-neutral-50", movingIds.has(item.id) && "opacity-50")}>
-									<Checkbox checked={selectedIds.has(item.id)} onChange={() => toggleItem(item.id)} disabled={!selectable.includes(item)} aria-label={t("drive.selectItem", { name: item.name })} className={clsx("ml-1", !selectable.includes(item) && "invisible")} />
-									<button type="button" onClick={() => open(item)} aria-disabled={item.trashedAt ? true : undefined} className="flex min-w-0 items-center gap-3 py-3 text-left aria-disabled:cursor-default">
+									<Checkbox checked={selectedIds.has(item.id)} onChange={() => toggleItem(item.id)} disabled={!selectable.includes(item)} aria-label={t("drive.selectItem", { name: item.name })} className={clsx("ms-1", !selectable.includes(item) && "invisible")} />
+									<button type="button" onClick={() => open(item)} aria-disabled={item.trashedAt ? true : undefined} className="flex min-w-0 items-center gap-3 py-3 text-start aria-disabled:cursor-default">
 										<Icon size={16} className={clsx("shrink-0", className)} fill={item.kind === "folder" ? "currentColor" : "none"} />
 										<span className="truncate text-neutral-900">{item.name}</span>
 										{item.shared && item.role === "owner" && <Share2 size={12} className="shrink-0 text-neutral-500" aria-label={t("drive.share")} />}
@@ -341,7 +341,7 @@ export default function DrivePage() {
 						})}
 				</div>
 			</div>
-			{dragging && <div className="pointer-events-none absolute inset-2 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-blue-500 bg-blue-50/80 text-blue-700"><UploadCloud size={28} /><span className="ml-3 text-base font-medium">{t("drive.fileUpload")}</span></div>}
+			{dragging && <div className="pointer-events-none absolute inset-2 z-20 flex items-center justify-center rounded-2xl border-2 border-dashed border-blue-500 bg-blue-50/80 text-blue-700"><UploadCloud size={28} /><span className="ms-3 text-base font-medium">{t("drive.fileUpload")}</span></div>}
 
 			<Dialog open={!!naming} onOpenChange={(openState) => { if (!openState) setNaming(null); }}>
 				<DialogContent>
@@ -360,7 +360,7 @@ export default function DrivePage() {
 				<DialogContent overlayClassName="bg-black/65 backdrop-blur-sm" closeClassName="text-white hover:bg-[rgb(255_255_255/0.15)] hover:text-white" className="h-[min(85vh,900px)] w-[min(1100px,calc(100vw-32px))] max-w-none overflow-hidden bg-transparent p-0 shadow-none">
 					{preview && (
 						<div className="flex h-full flex-col">
-							<DialogTitle className="flex h-14 shrink-0 items-center justify-between gap-3 pl-5 pr-14 text-white">
+							<DialogTitle className="flex h-14 shrink-0 items-center justify-between gap-3 ps-5 pe-14 text-white">
 								<span className="truncate text-base font-medium">{preview.name}</span>
 								<span className="flex shrink-0 items-center gap-1">
 									{preview.source && <a href={emailUrl(preview.source)} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 rounded-full px-3 py-2 text-sm hover:bg-[rgb(255_255_255/0.15)]"><Mail size={16} />{t("drive.openEmail")}<ExternalLink size={12} aria-hidden="true" /><span className="sr-only"> ({t("common.opensInNewTab")})</span></a>}

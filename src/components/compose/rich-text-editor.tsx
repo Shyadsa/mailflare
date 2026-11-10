@@ -234,7 +234,7 @@ export function RichTextEditor({
 				{toolbarEnd}
 				{linkOpen && (
 					<div
-						className="absolute bottom-full left-2 z-10 mb-1 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg"
+						className="absolute bottom-full start-2 z-10 mb-1 flex items-center gap-2 rounded-lg border border-neutral-200 bg-white p-2 shadow-lg"
 					>
 						<input
 							autoFocus

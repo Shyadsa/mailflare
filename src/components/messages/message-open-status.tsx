@@ -44,7 +44,7 @@ export function MessageOpenStatus({ messageId }: { messageId: string }) {
 					date: tracking.lastOpenedAt ? formatUserDate(tracking.lastOpenedAt, DATE_FORMAT) : "",
 				})}
 			</summary>
-			<ul className="mt-2 space-y-1 border-l border-neutral-200 pl-3">
+			<ul className="mt-2 space-y-1 border-s border-neutral-200 ps-3">
 				{tracking.opens.map((event) => {
 					const description = describeOpenEvent(event, locale);
 					return (
@@ -66,6 +66,6 @@ export function OpenedIndicator({ count }: { count?: number }) {
 	const { t } = useLanguage();
 	if (!count) return null;
 	return (
-		<Eye className="mr-1 inline h-3 w-3 align-[-1px] text-blue-600" role="img" aria-label={t("list.opened", { count })} />
+		<Eye className="me-1 inline h-3 w-3 align-[-1px] text-blue-600" role="img" aria-label={t("list.opened", { count })} />
 	);
 }

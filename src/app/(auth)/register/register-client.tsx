@@ -441,9 +441,9 @@ export function RegisterClient() {
                 placeholder={t("setup.usernamePlaceholder")}
                 autoComplete="username"
                 required
-								className="pr-34"
+								className="pe-34"
               />
-              <span className="max-w-36 truncate text-sm font-medium text-neutral-500 absolute top-2.5 right-5">
+              <span className="max-w-36 truncate text-sm font-medium text-neutral-500 absolute top-2.5 end-5">
                 @{accountDomain ?? t("setup.domainFallback")}
               </span>
             </div>

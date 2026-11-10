@@ -437,7 +437,7 @@ export function MailboxSelector({ initialUser }: MailboxSelectorProps = {}) {
 							>
 								<ShieldCheck size={18} className="text-neutral-600" />
 								{t("account.admin")}
-								{adminActive && <Check className="ml-auto h-4 w-4 text-blue-600" />}
+								{adminActive && <Check className="ms-auto h-4 w-4 text-blue-600" />}
 							</Link>
 						)}
 						<Link
@@ -451,7 +451,7 @@ export function MailboxSelector({ initialUser }: MailboxSelectorProps = {}) {
 						<button
 							type="button"
 							onClick={logout}
-							className="flex w-full items-center gap-3 border-t border-neutral-100 px-5 py-4 text-left text-sm font-medium text-neutral-800 hover:bg-[#f2f6fc]"
+							className="flex w-full items-center gap-3 border-t border-neutral-100 px-5 py-4 text-start text-sm font-medium text-neutral-800 hover:bg-[#f2f6fc]"
 						>
 							<LogOut size={18} className="text-neutral-600" />
 							{t("account.signOut")}

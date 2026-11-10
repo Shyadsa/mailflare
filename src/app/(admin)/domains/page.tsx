@@ -401,7 +401,7 @@ export default function DomainsPage() {
                       <p className="font-medium">
                         {t("domains.tokenPermissions")}
                       </p>
-                      <ul className="list-disc space-y-1 pl-5">
+                      <ul className="list-disc space-y-1 ps-5">
                         <li>
                           {t("domains.tokenAccounts")}
                         </li>

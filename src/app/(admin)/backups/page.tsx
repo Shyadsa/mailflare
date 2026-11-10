@@ -223,7 +223,7 @@ export default function BackupsPage() {
                 type="button"
                 size="sm"
                 variant="outline"
-                className="ml-auto border-amber-300 bg-white/70"
+                className="ms-auto border-amber-300 bg-white/70"
                 disabled={backups.isFetching}
                 onClick={() => void backups.refetch()}
               >
@@ -380,7 +380,7 @@ export default function BackupsPage() {
                             else setSettings({ ...settings, retentionDays: savedSettings.current?.retentionDays ?? 30 });
                           }}
                         />
-                        <span className="text-sm text-neutral-500 absolute z-10 right-6">{t("backups.days")}</span>
+                        <span className="text-sm text-neutral-500 absolute z-10 end-6">{t("backups.days")}</span>
                       </div>
                     </div>
                   </div>
@@ -396,6 +396,7 @@ export default function BackupsPage() {
           <DatabaseBackup className="h-5 w-5 text-neutral-500" />
           <h2 className="font-semibold text-neutral-900">{t("backups.history")}</h2>
         </div>
+        <div className="overflow-x-auto"><div className="min-w-[640px]">
         <div className="grid grid-cols-[1fr_110px_110px_170px_120px] gap-4 border-b border-neutral-100 bg-neutral-50 px-4 py-2 text-xs font-semibold uppercase tracking-wide text-neutral-500">
           <span>{t("backups.col.file")}</span>
           <span>{t("backups.col.status")}</span>
@@ -456,6 +457,7 @@ export default function BackupsPage() {
             </div>
           </div>
         ))}
+        </div></div>
       </section>
     </div>
   );

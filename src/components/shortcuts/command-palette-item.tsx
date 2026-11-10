@@ -29,7 +29,7 @@ export function CommandPaletteItem({
       tabIndex={-1}
       onClick={onSelect}
       onMouseEnter={onHover}
-      className={`w-full text-left px-3 py-2.5 rounded-xl flex items-center justify-between transition-colors ${
+      className={`w-full text-start px-3 py-2.5 rounded-xl flex items-center justify-between transition-colors ${
         isActive
           ? "bg-blue-600 text-white"
           : "text-neutral-800 hover:bg-neutral-100"
@@ -49,7 +49,7 @@ export function CommandPaletteItem({
           <span className="text-sm font-medium">{item.title}</span>
           {item.subtitle && (
             <span
-              className={`ml-2 text-xs truncate ${
+              className={`ms-2 text-xs truncate ${
                 isActive
                   ? "text-white"
                   : "text-neutral-500"

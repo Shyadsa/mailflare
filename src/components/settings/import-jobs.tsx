@@ -184,7 +184,7 @@ export function ImportJobs({ refreshKey }: { refreshKey: number }) {
 							{job.errorCount > 0 && (
 								<details className="text-xs text-neutral-600">
 									<summary className="cursor-pointer">{t("importJobs.errors", { count: job.errorCount })}</summary>
-									<ul className="mt-2 list-disc space-y-1 pl-5">
+									<ul className="mt-2 list-disc space-y-1 ps-5">
 										{job.errors.slice(0, 5).map((item) => (
 											<li key={item}>{item}</li>
 										))}

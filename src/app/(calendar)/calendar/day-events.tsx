@@ -41,9 +41,9 @@ function DayEventsImpl({ day, events, currentTime, busy, activeEventId, onEdit, 
 							onDragStart={(dragEvent: DragEvent<HTMLButtonElement>) => onDragStart(dragEvent, event)}
 							onDragEnd={onDragEnd}
 							title={`${event.title} · ${range}`}
-							className={`absolute left-1 right-1 z-10 flex cursor-move flex-col items-start justify-start overflow-hidden rounded-lg pr-2 pl-4 text-left hover:brightness-95 ${isPastEvent ? PAST_EVENT_COLOR_CLASSES[color] : EVENT_COLOR_CLASSES[color]} ${position.height >= 20 ? "py-1.5" : "py-0"} ${activeEventId === event.id ? "opacity-40" : ""}`}
+							className={`absolute start-1 end-1 z-10 flex cursor-move flex-col items-start justify-start overflow-hidden rounded-lg pe-2 ps-4 text-start hover:brightness-95 ${isPastEvent ? PAST_EVENT_COLOR_CLASSES[color] : EVENT_COLOR_CLASSES[color]} ${position.height >= 20 ? "py-1.5" : "py-0"} ${activeEventId === event.id ? "opacity-40" : ""}`}
 							style={{ top: position.top, height: position.height }}>
-							<span className="absolute top-1 left-1 block h-[calc(100%-8px)] w-1 rounded-xl bg-current" />
+							<span className="absolute top-1 start-1 block h-[calc(100%-8px)] w-1 rounded-xl bg-current" />
 							{position.height >= 15 && <span className="block w-full truncate text-[12px] font-semibold leading-4">{event.title}</span>}
 							{position.height >= 34 && <span className="block w-full truncate text-[11px] leading-4 opacity-70">{range}</span>}
 						</button>
@@ -55,7 +55,7 @@ function DayEventsImpl({ day, events, currentTime, busy, activeEventId, onEdit, 
 								onPointerUp={onResizeEnd}
 								onPointerCancel={onResizeCancel}
 								onClick={(clickEvent) => clickEvent.stopPropagation()}
-								className={clsx("absolute left-1 right-1 z-20 cursor-ns-resize touch-none bg-transparent focus-visible:outline-2 focus-visible:outline-blue-500")}
+								className={clsx("absolute start-1 end-1 z-20 cursor-ns-resize touch-none bg-transparent focus-visible:outline-2 focus-visible:outline-blue-500")}
 								style={{ height: handleHeight, top: edge === "start" ? position.top : position.top + position.height - handleHeight }} />
 						))}
 					</Fragment>

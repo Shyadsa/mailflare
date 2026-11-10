@@ -30,7 +30,7 @@ export function AgentToolActivity({ item, forceOpen }: { item: AgentMessage; for
 			<span className="truncate flex-1 min-w-0">{display.label}</span>
 			<ChevronLeft size={13} className="shrink-0 text-neutral-400 transition-transform group-open/tool:-rotate-90" aria-hidden="true" />
 		</summary>
-		<div className="mt-1.5 space-y-2 pl-[18px] text-neutral-600">
+		<div className="mt-1.5 space-y-2 ps-[18px] text-neutral-600">
 			<p>{display.description}</p>
 			{emails.length > 0 && <ul className="space-y-1.5">{emails.map((email) => <li key={email.id} className="break-words"><AgentEmailLink email={email} className="font-medium text-blue-700 hover:underline" />{email.from && <span className="text-neutral-500"> · {email.from}</span>}{email.snippet && <p className="line-clamp-2 text-neutral-500">{email.snippet}</p>}</li>)}</ul>}
 			{result && Object.entries(result).filter(([key, value]) => !["emails", "text", "attachments", "result", "id", "subject", "from", "snippet", "url", "reviewUrl", "action", "status"].includes(key) && value !== null && typeof value !== "object").map(([key, value]) => <p key={key} className="break-words"><span className="text-neutral-500">{key.replace(/([A-Z])/g, " $1")}: </span>{String(value)}</p>)}
