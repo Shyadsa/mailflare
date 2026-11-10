@@ -116,7 +116,7 @@ export default function AccountPermissionsPage() {
 				</p>
 			</section>
 			<div className="overflow-hidden rounded-3xl bg-white">
-				<table className="w-full text-left">
+				<table className="w-full text-start">
 					<thead className="border-b border-neutral-100 bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-500">
 						<tr>
 							<th scope="col" className="px-5 py-3">{t("account.permissions.permission")}</th>
@@ -174,7 +174,7 @@ export default function AccountPermissionsPage() {
 					<h2 className="text-xs font-semibold uppercase tracking-wide text-neutral-500">{t("account.permissions.features")}</h2>
 					<p className="mt-1 text-xs text-neutral-500">{t("account.permissions.featuresHint")}</p>
 				</div>
-				<table className="w-full text-left">
+				<table className="w-full text-start">
 					<tbody className="divide-y divide-neutral-100">
 						<tr>
 							<td className="px-5 py-4">

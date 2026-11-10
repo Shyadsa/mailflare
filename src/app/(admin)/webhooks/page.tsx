@@ -198,9 +198,9 @@ export default function WebhooksPage() {
 									<Activity className="h-4 w-4" />
 									{expanded === hook.id ? t("webhooks.hideHistory") : t("webhooks.history")}
 								</Button>
-								<div className="ml-auto flex flex-wrap items-center gap-2">
+								<div className="ms-auto flex flex-wrap items-center gap-2">
 									{testResult[hook.id] && (
-										<p className="mr-1 text-sm text-neutral-600">
+										<p className="me-1 text-sm text-neutral-600">
 											{t("webhooks.testDelivery", { result: testResult[hook.id] })}
 										</p>
 									)}

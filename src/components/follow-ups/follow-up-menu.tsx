@@ -35,7 +35,7 @@ export function FollowUpMenu({ trigger, onPick, onClear, disabled }: {
 						<>
 							<DropdownMenu.Separator className="my-1 h-px bg-neutral-100" />
 							<DropdownMenu.Item onSelect={onClear} className={ITEM_CLASS}>
-								<X className="mr-2 h-4 w-4" />
+								<X className="me-2 h-4 w-4" />
 								{t("followUp.none")}
 							</DropdownMenu.Item>
 						</>

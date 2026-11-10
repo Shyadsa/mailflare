@@ -81,7 +81,7 @@ export function MessageAttachmentViewer({
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
 			<DialogContent className="flex h-[min(88vh,900px)] w-[min(1100px,calc(100vw-32px))] flex-col overflow-hidden">
-				<DialogHeader className="shrink-0 pr-10">
+				<DialogHeader className="shrink-0 pe-10">
 					<DialogTitle className="truncate">{attachment.filename}</DialogTitle>
 					<DialogDescription>{attachment.type}</DialogDescription>
 				</DialogHeader>
@@ -133,7 +133,7 @@ export function MessageAttachmentViewer({
 				{risk && flagged && (
 					<div role="alert" className={`shrink-0 rounded-lg border p-3 text-sm ${risk.level === "blocked" ? "border-red-300 bg-red-50 text-red-900" : "border-amber-300 bg-amber-50 text-amber-900"}`}>
 						<p className="font-medium">{risk.level === "blocked" ? t("attachment.risk.blocked") : t("attachment.risk.warning")}</p>
-						<ul className="mt-1 list-disc pl-5">
+						<ul className="mt-1 list-disc ps-5">
 							{risk.reasons.map((reason) => <li key={reason}>{reason}</li>)}
 						</ul>
 						<label className="mt-2 flex items-center gap-2">

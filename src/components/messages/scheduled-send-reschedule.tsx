@@ -63,7 +63,7 @@ export function ScheduledSendReschedule({ scheduledAt, disabled, onPick }: { sch
 							className="cursor-pointer rounded-md px-3 py-2 outline-none hover:bg-neutral-100 focus:bg-neutral-100"
 						>
 							{t(option.labelKey)}
-							<span className="ml-2 text-xs text-neutral-500">{option.value && formatScheduledSend(option.value)}</span>
+							<span className="ms-2 text-xs text-neutral-500">{option.value && formatScheduledSend(option.value)}</span>
 						</DropdownMenu.Item>
 					))}
 					<DropdownMenu.Separator className="my-1 h-px bg-neutral-100" />

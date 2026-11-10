@@ -42,7 +42,7 @@ export default function PublicDrivePage({ params }: { params: Promise<{ token: s
 						{index === path.length - 1 ? <h1 className="px-2 py-1">{crumb.name}</h1> : <button type="button" onClick={() => setItemId(crumb.id)} className="rounded-full px-2 py-1 hover:bg-neutral-200/60">{crumb.name}</button>}
 					</span>
 				))}
-				{isFile && <a href={publicContentUrl(token, item.id, true)} className="ml-auto inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"><Download size={16} />{t("drive.download")}</a>}
+				{isFile && <a href={publicContentUrl(token, item.id, true)} className="ms-auto inline-flex items-center gap-2 rounded-full bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700"><Download size={16} />{t("drive.download")}</a>}
 			</nav>
 			{isFile ? (
 				<div className="min-h-[70vh] flex-1 rounded-2xl bg-[#202124] p-3"><DrivePreviewBody src={publicContentUrl(token, item.id)} downloadHref={publicContentUrl(token, item.id, true)} contentType={item.contentType} name={item.name} /></div>
@@ -59,7 +59,7 @@ function PublicRow({ entry, token, onOpen }: { entry: PublicDriveItem; token: st
 	const { Icon, className } = driveIconFor(entry);
 	return (
 		<div className="flex items-center gap-4 rounded-lg px-3 text-sm hover:bg-neutral-50">
-			<button type="button" onClick={() => onOpen(entry.id)} className="flex min-w-0 flex-1 items-center gap-4 py-3 text-left">
+			<button type="button" onClick={() => onOpen(entry.id)} className="flex min-w-0 flex-1 items-center gap-4 py-3 text-start">
 				<Icon size={16} className={className} fill={entry.kind === "folder" ? "currentColor" : "none"} />
 				<span className="truncate text-neutral-900">{entry.name}</span>
 			</button>

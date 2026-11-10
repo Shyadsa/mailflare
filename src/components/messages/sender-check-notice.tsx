@@ -53,7 +53,7 @@ export function SenderCheckNotice({
 					aria-expanded={detailsOpen}
 					aria-label={t("message.senderCheckTitle")}
 					className={cn(
-						"flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-left text-[13px] font-medium transition-colors",
+						"flex w-full items-center gap-2 rounded-xl border px-3 py-2 text-start text-[13px] font-medium transition-colors",
 						"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600",
 						detailsOpen
 							? "border-amber-300 bg-amber-100 text-amber-950 hover:bg-amber-200/40"

@@ -93,7 +93,7 @@ export function ContactDetailsTrigger({
 			<button
 				type="button"
 				onClick={() => handleOpenChange(true)}
-				className={`${className ?? ""} rounded-sm text-left hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200`}
+				className={`${className ?? ""} rounded-sm text-start hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-200`}
 			>
 				{shownName}
 			</button>

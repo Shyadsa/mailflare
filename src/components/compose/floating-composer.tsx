@@ -81,7 +81,7 @@ function ComposeNoticeToast({ notice }: { notice: ComposeNotice }) {
 			role="status"
 			aria-atomic="false"
 			className={cn(
-				"fixed right-6 top-6 z-[60] flex max-w-[calc(100vw-3rem)] items-center gap-4 rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg",
+				"fixed end-6 top-6 z-[60] flex max-w-[calc(100vw-3rem)] items-center gap-4 rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg",
 				notice.tone === "error" ? "bg-red-600" : notice.tone === "loading" ? "bg-neutral-800" : "bg-green-600",
 			)}
 		>
@@ -132,7 +132,7 @@ export function FloatingComposer({ showButton = false }: { showButton?: boolean 
 					type="button"
 					onClick={openComposer}
 					aria-label={t("navigation.compose")}
-					className="fixed right-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 flex h-12 items-center gap-3 rounded-2xl bg-blue-100 px-5 text-base font-medium text-blue-950 shadow-sm transition-colors hover:bg-blue-200 active:bg-blue-200 md:hidden"
+					className="fixed end-[max(1rem,env(safe-area-inset-right))] bottom-[max(1rem,env(safe-area-inset-bottom))] z-30 flex h-12 items-center gap-3 rounded-2xl bg-blue-100 px-5 text-base font-medium text-blue-950 shadow-sm transition-colors hover:bg-blue-200 active:bg-blue-200 md:hidden"
 				>
 					<MailPlus size={19} />
 					{t("navigation.compose")}

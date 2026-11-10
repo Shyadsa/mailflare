@@ -17,7 +17,9 @@ export function ResizeHandle({ label, onResizeStart, onResize, onResizeEnd }: Re
 
 	function handlePointerMove(event: PointerEvent<HTMLDivElement>) {
 		if (startX.current === null) return;
-		onResize(event.clientX - startX.current);
+		// The handle sits on the inline-end edge, so in right-to-left layouts dragging left grows the panel.
+		const delta = event.clientX - startX.current;
+		onResize(getComputedStyle(event.currentTarget).direction === "rtl" ? -delta : delta);
 	}
 
 	function handlePointerEnd() {
@@ -31,7 +33,7 @@ export function ResizeHandle({ label, onResizeStart, onResize, onResizeEnd }: Re
 			role="separator"
 			aria-label={label}
 			aria-orientation="vertical"
-			className="absolute inset-y-0 right-0 z-20 w-2 translate-x-1/2 cursor-col-resize touch-none"
+			className="absolute inset-y-0 end-0 z-20 w-2 translate-x-1/2 rtl:-translate-x-1/2 cursor-col-resize touch-none"
 			onPointerDown={handlePointerDown}
 			onPointerMove={handlePointerMove}
 			onPointerUp={handlePointerEnd}

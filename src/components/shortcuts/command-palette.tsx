@@ -149,13 +149,13 @@ function CommandPaletteDialog({
         <div className="px-4 py-2.5 bg-neutral-50 border-t border-neutral-100 flex items-center justify-between text-xs text-neutral-500">
           <div className="flex items-center gap-3">
             <span>
-              <kbd className="px-1.5 py-0.5 bg-neutral-200 rounded mr-1 text-[10px]">
+              <kbd className="px-1.5 py-0.5 bg-neutral-200 rounded me-1 text-[10px]">
                 ↑↓
               </kbd>
               {t("palette.navigate")}
             </span>
             <span className="flex items-center">
-              <CornerDownLeft className="w-3 h-3 mr-1 inline" />
+              <CornerDownLeft className="w-3 h-3 me-1 inline" />
               {t("palette.select")}
             </span>
           </div>

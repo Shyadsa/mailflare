@@ -105,7 +105,7 @@ export function AdminUpdateCard() {
 											<CircleX className="h-4 w-4 shrink-0 text-red-600" />
 										)}
 										<code className="text-xs font-medium text-neutral-800">{item.name}</code>
-										<span className={`ml-auto text-xs font-medium ${item.configured ? "text-green-700" : "text-red-600"}`}>
+										<span className={`ms-auto text-xs font-medium ${item.configured ? "text-green-700" : "text-red-600"}`}>
 											{item.configured ? t("update.configured") : t("update.missing")}
 										</span>
 									</li>
@@ -133,7 +133,7 @@ export function AdminUpdateCard() {
 									type="button"
 									onClick={handleUpdate}
 									disabled={isPending}
-									className="ml-auto shrink-0 text-sm font-medium text-blue-700 hover:underline disabled:pointer-events-none disabled:opacity-50"
+									className="ms-auto shrink-0 text-sm font-medium text-blue-700 hover:underline disabled:pointer-events-none disabled:opacity-50"
 								>
 									{isPending ? t("update.starting") : t("update.updateButton")}
 								</button>
@@ -161,7 +161,7 @@ export function AdminUpdateCard() {
 									type="button"
 									onClick={handleMigrate}
 									disabled={isMigrating}
-									className="ml-auto shrink-0 text-sm font-medium text-blue-700 hover:underline disabled:pointer-events-none disabled:opacity-50"
+									className="ms-auto shrink-0 text-sm font-medium text-blue-700 hover:underline disabled:pointer-events-none disabled:opacity-50"
 								>
 									{isMigrating ? t("update.updatingDatabase") : t("update.updateDatabase")}
 								</button>

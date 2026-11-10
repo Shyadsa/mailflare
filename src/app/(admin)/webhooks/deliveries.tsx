@@ -51,7 +51,7 @@ export function WebhookDeliveries({ webhookId }: { webhookId: string }) {
 
 	return (
 		<div role="region" tabIndex={0} aria-label={t("webhooks.stat.deliveries")} className="overflow-x-auto rounded-xl border border-neutral-200">
-			<table className="w-full min-w-[820px] text-left text-sm">
+			<table className="w-full min-w-[820px] text-start text-sm">
 				<thead className="bg-neutral-50 text-xs uppercase tracking-wide text-neutral-500">
 					<tr>
 						<th scope="col" className="px-3 py-2 font-medium">{t("webhooks.col.event")}</th>
@@ -86,7 +86,7 @@ export function WebhookDeliveries({ webhookId }: { webhookId: string }) {
 									{delivery.responseStatus ?? "—"}
 									{delivery.durationMs !== null && (
 										// An explicit separator: "200" next to "6ms" otherwise reads as "2006ms".
-										<span className="ml-1 text-xs text-neutral-500">
+										<span className="ms-1 text-xs text-neutral-500">
 											· {formatDuration(delivery.durationMs)}
 										</span>
 									)}

@@ -107,7 +107,7 @@ export function AdminNav({ className }: { className?: string }) {
 
   return (
     <SidebarScaffold className={className} header={<SidebarHeader href="/inbox" label={t("account.admin")} />} footer={<SidebarFooter />}>
-      <div className={cn("space-y-4", minimal && "space-y-2 pl-1")}>
+      <div className={cn("space-y-4", minimal && "space-y-2 ps-1")}>
         {sections.map((section, sectionIndex) => {
           const links = section.links.filter(canSee).map(({ labelKey, ...link }): NavLink => ({ ...link, label: t(labelKey) }));
           if (links.length === 0) return null;

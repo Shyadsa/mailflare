@@ -33,9 +33,9 @@ export function DriveTypeFilter({ value: applied, onChange }: { value: DriveCate
 							checked={value.includes(category)}
 							onCheckedChange={(checked) => update(checked ? [...value, category] : value.filter((entry) => entry !== category))}
 							onSelect={(event) => event.preventDefault()}
-							className="relative flex cursor-pointer items-center rounded-lg py-2 pl-8 pr-3 text-sm text-neutral-700 outline-none data-[highlighted]:bg-neutral-100"
+							className="relative flex cursor-pointer items-center rounded-lg py-2 ps-8 pe-3 text-sm text-neutral-700 outline-none data-[highlighted]:bg-neutral-100"
 						>
-							<DropdownMenu.ItemIndicator className="absolute left-2.5"><Check size={14} className="text-blue-600" /></DropdownMenu.ItemIndicator>
+							<DropdownMenu.ItemIndicator className="absolute start-2.5"><Check size={14} className="text-blue-600" /></DropdownMenu.ItemIndicator>
 							{labels[category]}
 						</DropdownMenu.CheckboxItem>
 					))}

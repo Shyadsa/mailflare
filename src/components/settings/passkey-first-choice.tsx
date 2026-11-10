@@ -103,7 +103,7 @@ export function PasskeyFirstChoice({
 							type="button"
 							onClick={() => onChoose(option.id)}
 							disabled={busy}
-							className="flex w-full items-start gap-3 rounded-2xl border border-neutral-200 p-3 text-left transition-colors hover:border-neutral-300 hover:bg-neutral-50"
+							className="flex w-full items-start gap-3 rounded-2xl border border-neutral-200 p-3 text-start transition-colors hover:border-neutral-300 hover:bg-neutral-50"
 						>
 							<option.icon className={`mt-0.5 h-4 w-4 shrink-0 ${option.iconClass}`} />
 							<span className="min-w-0">

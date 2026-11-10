@@ -147,7 +147,7 @@ export function DriveBulkActions({ selected, trashView, onDone }: { selected: Dr
 								<div className="max-h-64 overflow-y-auto pt-1">
 									<DropdownMenu.Item onSelect={() => void move(null)} className="flex cursor-pointer items-center gap-2 rounded-lg px-2.5 py-2 text-sm text-neutral-700 outline-none data-[highlighted]:bg-neutral-100"><HardDrive size={16} className="shrink-0" />{t("drive.myDrive")}</DropdownMenu.Item>
 									{rows.map((folder) => (
-										<DropdownMenu.Item key={folder.id} disabled={folder.disabled} onSelect={() => void move(folder.id)} style={{ paddingLeft: 10 + folder.depth * 14 }} className={clsx("flex cursor-pointer items-center gap-2 rounded-lg py-2 pr-2.5 text-sm text-neutral-700 outline-none data-[disabled]:cursor-default data-[disabled]:opacity-40 data-[highlighted]:bg-neutral-100")}>
+										<DropdownMenu.Item key={folder.id} disabled={folder.disabled} onSelect={() => void move(folder.id)} style={{ paddingInlineStart: 10 + folder.depth * 14 }} className={clsx("flex cursor-pointer items-center gap-2 rounded-lg py-2 pe-2.5 text-sm text-neutral-700 outline-none data-[disabled]:cursor-default data-[disabled]:opacity-40 data-[highlighted]:bg-neutral-100")}>
 											<Folder size={16} className="shrink-0 text-amber-500" /><span className="truncate">{folder.name}</span>
 										</DropdownMenu.Item>
 									))}

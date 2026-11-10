@@ -164,7 +164,7 @@ export function DriveNav({ onNavigate }: { onNavigate?: () => void }) {
 					<div className="mt-3">
 						<div className="flex items-center gap-1">
 							<button type="button" onClick={toggleFolders} aria-expanded={foldersOpen} aria-label={t("drive.foldersToggle")} className="flex h-9 min-w-0 flex-1 items-center gap-2 rounded-full px-4 text-xs font-semibold uppercase tracking-wide text-neutral-500 hover:bg-neutral-200/60">
-								<ChevronRight size={14} className={clsx("transition-transform", foldersOpen && "rotate-90")} />{t("drive.folders")}
+								<ChevronRight size={14} className={clsx("transition-transform", foldersOpen && "rotate-90 rtl:-rotate-90")} />{t("drive.folders")}
 							</button>
 							<button type="button" onClick={() => { setFolderName(""); setCreating(true); }} aria-label={t("drive.newFolder")} title={t("drive.newFolder")} className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-neutral-500 hover:bg-neutral-200/60 hover:text-neutral-800"><Plus size={16} /></button>
 						</div>
@@ -173,7 +173,7 @@ export function DriveNav({ onNavigate }: { onNavigate?: () => void }) {
 								{rows.length === 0 && <li className="px-4 py-1.5 text-xs text-neutral-500">{t("drive.noFolders")}</li>}
 								{rows.map((folder) => (
 									<li key={folder.id}>
-										<Link href={`/drive?folder=${encodeURIComponent(folder.id)}`} onClick={onNavigate} {...dropProps(folder.id, { kind: "folder", id: folder.id })} aria-current={activeFolder === folder.id ? "page" : undefined} style={{ paddingLeft: 16 + folder.depth * 14 }} className={clsx("flex h-8 items-center gap-2 rounded-full pr-3 text-sm", dropKey === folder.id ? dropHighlight : activeFolder === folder.id ? "bg-blue-100 font-medium text-blue-900" : "text-neutral-700 hover:bg-neutral-200/60")}>
+										<Link href={`/drive?folder=${encodeURIComponent(folder.id)}`} onClick={onNavigate} {...dropProps(folder.id, { kind: "folder", id: folder.id })} aria-current={activeFolder === folder.id ? "page" : undefined} style={{ paddingInlineStart: 16 + folder.depth * 14 }} className={clsx("flex h-8 items-center gap-2 rounded-full pe-3 text-sm", dropKey === folder.id ? dropHighlight : activeFolder === folder.id ? "bg-blue-100 font-medium text-blue-900" : "text-neutral-700 hover:bg-neutral-200/60")}>
 											<Folder size={14} className="shrink-0 text-amber-500" /><span className="truncate">{folder.name}</span>
 										</Link>
 									</li>

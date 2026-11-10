@@ -61,7 +61,7 @@ export default function DomainItemCard({
         </span>
 
         <div className="flex w-full min-w-0 flex-1 flex-col gap-2">
-          <span className="min-w-0 truncate pr-10 text-sm font-semibold text-neutral-900">
+          <span className="min-w-0 truncate pe-10 text-sm font-semibold text-neutral-900">
             {item.hostname}
           </span>
 
@@ -175,7 +175,7 @@ export default function DomainItemCard({
           <Button
             variant="ghost"
             size="sm"
-            className="absolute right-4 top-4 h-8 w-8 p-0"
+            className="absolute end-4 top-4 h-8 w-8 p-0"
             disabled={remove.isPending}
             aria-label={t("domains.actionsFor", { host: item.hostname })}
           >

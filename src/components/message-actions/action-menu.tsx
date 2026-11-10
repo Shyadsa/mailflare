@@ -6,7 +6,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export const messageActionMenuItemClass =
-	"flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-neutral-700 outline-none data-[disabled]:cursor-not-allowed data-[disabled]:text-neutral-400 data-[highlighted]:bg-neutral-100";
+	"flex w-full cursor-pointer items-center gap-2 rounded-lg px-3 py-2 text-start text-sm text-neutral-700 outline-none data-[disabled]:cursor-not-allowed data-[disabled]:text-neutral-400 data-[highlighted]:bg-neutral-100";
 
 type MessageActionMenuProps = {
 	/** Tooltip and accessible name for the trigger. */
